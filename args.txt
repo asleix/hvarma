@@ -1,0 +1,14 @@
+arma_order=3
+maxtau=128
+forward_weight=0.5
+backward_weight=0.5
+nfir=40
+ini_freq=-10
+fin_freq=10
+num_points=1024
+window_size=512
+window_shift=256
+max_windows=10000000
+freq_conf_interval=20
+spectral_conf_interval=50
+output_path=default
