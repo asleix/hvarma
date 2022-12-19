@@ -1,9 +1,9 @@
 # encoding=utf-8
 import time
 import numpy as np
-from include.read_input import ArmaParam, Data, Window
-from include.processing import ProcessingWindow, AverageData
-from include.write_output import progress_bar, write_data, pretty_show
+from hvarma.read_input import ArmaParam, Data, Window
+from hvarma.processing import ProcessingWindow, AverageData
+from hvarma.write_output import progress_bar, write_data, pretty_show
 
 
 def get_data_windows(data, size, overlap):

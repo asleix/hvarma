@@ -2,12 +2,12 @@ import unittest
 import io
 import contextlib
 import os, sys
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.dirname(SCRIPT_DIR))
+#SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+#sys.path.append(os.path.dirname(SCRIPT_DIR))
 
 
-from include.read_input import ArmaParam, Data, Window
-from include.write_output import progress_bar, write_data, pretty_show
+from hvarma.read_input import ArmaParam, Data, Window
+from hvarma.write_output import progress_bar, write_data, pretty_show
 
 
 class DataTest(unittest.TestCase):

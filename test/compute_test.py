@@ -2,18 +2,18 @@ import unittest
 import io
 import contextlib
 import os, sys
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.dirname(SCRIPT_DIR))
+#SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+#sys.path.append(os.path.dirname(SCRIPT_DIR))
 
 from numpy.testing import assert_array_almost_equal
 import numpy as np
 
-from include.read_input import ArmaParam, Data, Window
-from include.compute import compute_crosscovariance, compute_autocovariance,\
+from hvarma.read_input import ArmaParam, Data, Window
+from hvarma.compute import compute_crosscovariance, compute_autocovariance,\
                        compute_equations
 
 
-from include.processing import ProcessingWindow, AverageData
+from hvarma.processing import ProcessingWindow, AverageData
 
 
 class CovarianceTest(unittest.TestCase):
@@ -202,8 +202,16 @@ class ProcessingWindowTest(unittest.TestCase):
 class AverageDataTest(unittest.TestCase):
 
     def setUp(self):
-        from include.write_output import progress_bar
-        from run import get_data_windows
+        from hvarma.write_output import progress_bar
+        
+        def get_data_windows(data, size, overlap):
+            """ Generator of data slices from data of a given size,
+                overlapping one another """
+            if data.size < size:
+                raise Exception('Window exceeds available data')
+
+            for start in range(0, data.size-size+1, size-overlap):
+                yield Window(data, start, size)
 
         self.Z_fn = 'data/B001_Z.sac'
         self.N_fn = 'data/B001_N.sac'

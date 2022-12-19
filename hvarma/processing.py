@@ -1,7 +1,7 @@
 import numpy as np
-from include.compute import compute_crosscovariance, compute_autocovariance,\
+from hvarma.compute import compute_crosscovariance, compute_autocovariance,\
                        compute_equations, transfer_function, compute_coherence
-from include.read_input import ArmaParam, Window
+from hvarma.read_input import ArmaParam, Window
 
 
 class ProcessingWindow:
