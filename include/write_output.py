@@ -7,6 +7,8 @@ import numpy as np
 def progress_bar(size, wsize, overlap, maxwin):
     """ Return an instance of a generator to display the progress of window processing.
          Usage call: next(progress_bar_object).     Yields the current window number.   """
+    assert wsize > overlap#, "Window size must be larger than overlap"
+
     file = sys.stdout
     start = time.time()
 
@@ -18,7 +20,7 @@ def progress_bar(size, wsize, overlap, maxwin):
                    ('Progress: ', "#" * x, "." * (30 - x), j, nwin, time_left))
         file.flush()
 
-    nwin = min((size - wsize + overlap) // (wsize - overlap), maxwin)
+    nwin = min((size - overlap) // (wsize - overlap), maxwin)
 
     for i in range(1, nwin):
         show(i)
