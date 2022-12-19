@@ -16,54 +16,12 @@ from include.compute import compute_crosscovariance, compute_autocovariance,\
 from include.processing import ProcessingWindow, AverageData
 
 
-
-
-class Testing:
-    def __init__(self):
-
-        self.Z_fn = '../data/B001_Z.sac'
-        self.N_fn = '../data/B001_N.sac'
-        self.E_fn = '../data/B001_E.sac'
-        self.data = Data(Z_fname=self.Z_fn, 
-                         N_fname=self.N_fn, 
-                         E_fname=self.E_fn)
-
-        self.test_autocovariance2
-        ()
-
-    def test_autocovariance2(self):
-        self.set4 = ([ 7.28934951e+09+0.00000000e+00j,  3.26854860e+09+5.90404001e+08j,
-                     -3.97073231e+07+1.76561521e+09j, -6.26044627e+07+2.40595417e+09j,
-                     -1.44673979e+09+1.78538502e+09j, -1.39247079e+09+7.63443105e+08j,
-                     -1.52682997e+09+3.80995884e+08j, -2.37036468e+09+3.75111247e+07j,
-                     -1.15803352e+09-4.30143567e+08j,  2.91286747e+08-2.86857765e+08j],
-                    [ 2.50563614e+09,  1.73780562e+09,  6.08271785e+08, -5.04970417e+07,
-                     -3.43850738e+08, -3.80609258e+08, -7.45510945e+08, -1.22189911e+09,
-                     -1.17966176e+09, -6.87825794e+08])
-        
-        self.set4 = (np.array(self.set4[0]), np.array(self.set4[1]))
-
-        win = Window(self.data, 10, 50)
-        cov_x, cov_v = compute_crosscovariance(win.dataE, 
-                                               win.dataN, 
-                                               win.dataZ, 
-                                               50, 10)
-
-
-        print(cov_x)
-        print(cov_v)
-        assert_array_almost_equal(self.set4[0]/1e8, cov_x/1e8)
-        assert_array_almost_equal(self.set4[1]/1e8, cov_v/1e8)
-
-
-
-
 class CovarianceTest(unittest.TestCase):
 
     def setUp(self):
-        self.Z_fn = '../data/B001_Z.sac'
-        self.N_fn = '../data/B001_N.sac'
-        self.E_fn = '../data/B001_E.sac'
+        self.Z_fn = 'data/B001_Z.sac'
+        self.N_fn = 'data/B001_N.sac'
+        self.E_fn = 'data/B001_E.sac'
         self.data = Data(Z_fname=self.Z_fn, 
                          N_fname=self.N_fn, 
                          E_fname=self.E_fn)
@@ -156,9 +114,9 @@ class CovarianceTest(unittest.TestCase):
 class ModelEquationsTest(unittest.TestCase):
 
     def setUp(self):
-        self.Z_fn = '../data/B001_Z.sac'
-        self.N_fn = '../data/B001_N.sac'
-        self.E_fn = '../data/B001_E.sac'
+        self.Z_fn = 'data/B001_Z.sac'
+        self.N_fn = 'data/B001_N.sac'
+        self.E_fn = 'data/B001_E.sac'
         self.data = Data(Z_fname=self.Z_fn, 
                          N_fname=self.N_fn, 
                          E_fname=self.E_fn)
@@ -186,10 +144,10 @@ class ModelEquationsTest(unittest.TestCase):
 class ProcessingWindowTest(unittest.TestCase):
 
     def setUp(self):
-        self.Z_fn = '../data/B001_Z.sac'
-        self.N_fn = '../data/B001_N.sac'
-        self.E_fn = '../data/B001_E.sac'
-        self.filename = './resources/args1.txt'
+        self.Z_fn = 'data/B001_Z.sac'
+        self.N_fn = 'data/B001_N.sac'
+        self.E_fn = 'data/B001_E.sac'
+        self.filename = 'test/resources/args1.txt'
 
         self.data = Data(Z_fname=self.Z_fn, 
                          N_fname=self.N_fn, 
@@ -247,10 +205,10 @@ class AverageDataTest(unittest.TestCase):
         from include.write_output import progress_bar
         from run import get_data_windows
 
-        self.Z_fn = '../data/B001_Z.sac'
-        self.N_fn = '../data/B001_N.sac'
-        self.E_fn = '../data/B001_E.sac'
-        self.filename = './resources/args1.txt'
+        self.Z_fn = 'data/B001_Z.sac'
+        self.N_fn = 'data/B001_N.sac'
+        self.E_fn = 'data/B001_E.sac'
+        self.filename = 'test/resources/args1.txt'
         self.data = Data(Z_fname=self.Z_fn, 
                          N_fname=self.N_fn, 
                          E_fname=self.E_fn)

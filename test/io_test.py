@@ -5,6 +5,7 @@ import os, sys
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(SCRIPT_DIR))
 
+
 from include.read_input import ArmaParam, Data, Window
 from include.write_output import progress_bar, write_data, pretty_show
 
@@ -12,9 +13,9 @@ from include.write_output import progress_bar, write_data, pretty_show
 class DataTest(unittest.TestCase):
 
     def setUp(self):
-        self.Z_fn = '../data/B001_Z.sac'
-        self.N_fn = '../data/B001_N.sac'
-        self.E_fn = '../data/B001_E.sac'
+        self.Z_fn = 'data/B001_Z.sac'
+        self.N_fn = 'data/B001_N.sac'
+        self.E_fn = 'data/B001_E.sac'
 
     def test_input1(self):
         data = Data(Z_fname=self.Z_fn, N_fname=self.N_fn, E_fname=self.E_fn)
@@ -47,7 +48,7 @@ class DataTest(unittest.TestCase):
 class ArmaParamTest(unittest.TestCase):
 
     def setUp(self):
-        self.filename = './resources/args1.txt'
+        self.filename = 'test/resources/args1.txt'
 
     def test_input1(self):
         param = ArmaParam(filename=self.filename)
