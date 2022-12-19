@@ -7,7 +7,6 @@ import subprocess
 def compile_and_copy_c_files():
     """Use the subprocess module to compile the C software."""
     src_path = 'hvarma/ext_c/'
-    subprocess.check_call('make clean', cwd=src_path, shell=True)
     subprocess.check_call('make', cwd=src_path, shell=True)
 
     assert os.path.exists('hvarma/ext_c/gradient.so'), "Make sure shared object exists"
