@@ -1,8 +1,7 @@
-# encoding=utf-8
 import time
 import numpy as np
 from hvarma.read_input import ArmaParam, Data, Window
-from hvarma.processing import ProcessingWindow, AverageData
+from hvarma.processing import HVarma, AverageData
 from hvarma.write_output import progress_bar, write_data, pretty_show
 
 
@@ -29,7 +28,7 @@ def main(args):
     progress = progress_bar(data.size, param.wsize, param.overlap, param.maxwin)
     for idx, data_window in enumerate(get_data_windows(data, param.wsize, param.overlap)):
         nwin = next(progress)
-        model = ProcessingWindow(data_window, param)
+        model = HVarma(data_window, param)
         model.solve_arma()
         model.get_coherence()
 

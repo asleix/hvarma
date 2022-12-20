@@ -63,7 +63,7 @@ class ArmaParamTest(unittest.TestCase):
         self.assertEqual(param.npun, 1024)
         self.assertEqual(param.wsize, 512)
         self.assertEqual(param.overlap, 256)
-        self.assertEqual(param.maxwin, 1000)
+        self.assertEqual(param.maxwin, 100)
         self.assertEqual(param.freq_conf, 20)
         self.assertEqual(param.plot_conf, 50)
         self.assertEqual(param.oname, 'default')

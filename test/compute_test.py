@@ -139,11 +139,11 @@ class ModelEquationsTest(unittest.TestCase):
         assert_array_almost_equal(self.set1_indep/1e20, indep/1e20, decimal=8)
 
 
-class ProcessingWindowTest(unittest.TestCase):
+class HVArmaTest(unittest.TestCase):
 
     def setUp(self):
         from hvarma.read_input import ArmaParam, Data, Window
-        from hvarma.processing import ProcessingWindow
+        from hvarma.processing import HVarma
         self.Z_fn = 'data/B001_Z.sac'
         self.N_fn = 'data/B001_N.sac'
         self.E_fn = 'data/B001_E.sac'
@@ -155,7 +155,7 @@ class ProcessingWindowTest(unittest.TestCase):
 
         self.param = ArmaParam(filename=self.filename)
         self.window = Window(self.data, 10, self.param.wsize)
-        self.pwindow = ProcessingWindow(self.window, self.param)
+        self.pwindow = HVarma(self.window, self.param)
 
         self.pwindow.solve_arma() # This should be improved!
         self.pwindow.get_coherence()
@@ -204,7 +204,7 @@ class AverageDataTest(unittest.TestCase):
     def setUp(self):
         from hvarma.write_output import progress_bar
         from hvarma.read_input import ArmaParam, Data, Window
-        from hvarma.processing import ProcessingWindow, AverageData
+        from hvarma.processing import HVarma, AverageData
         
         def get_data_windows(data, size, overlap):
             """ Generator of data slices from data of a given size,
@@ -233,7 +233,7 @@ class AverageDataTest(unittest.TestCase):
         with contextlib.redirect_stdout(f): # catch stdout
             for idx, data_window in enumerate(get_data_windows(self.data, param.wsize, param.overlap)):
                 next(progress)
-                model = ProcessingWindow(data_window, param)
+                model = HVarma(data_window, param)
                 model.solve_arma()
                 model.get_coherence()
 
