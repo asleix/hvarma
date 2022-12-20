@@ -42,7 +42,7 @@ def compute_autocovariance(dataE, dataN, dataZ, size, maxtau):
 def compute_equations(dataE, dataN, dataZ, mu, nu, wsize, p, maxtau):
     """ Wrapper of C function to compute equations.
         Uses compiled library "gradient.so".    """
-    libname = "./c_ext/gradient.so"
+    libname = "./ext_c/gradient.so"
     libpath = os.path.dirname(os.path.abspath(__file__)) + os.path.sep + libname
     lib = ctypes.cdll.LoadLibrary(libpath)
     fun = lib.compute_equations

@@ -38,5 +38,5 @@ This is really just a demo package.
         'pytest'
         ],
         cmdclass={'install': CustomInstall},
-        package_data={'hvarma':['ext_c/gradient.so']}
+        include_package_data=True,
 )
