@@ -127,5 +127,6 @@ class Window(Data):
         self.sampling_rate = data.sampling_rate
         self.starttime = data.starttime
         self.endtime = data.endtime
+        self.station = data.station
 
 

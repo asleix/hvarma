@@ -4,12 +4,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def progress_bar(size, wsize, overlap, maxwin):
+def progress_bar(size, wsize, overlap, maxwin, file=sys.stdout):
     """ Return an instance of a generator to display the progress of window processing.
          Usage call: next(progress_bar_object).     Yields the current window number.   """
-    assert wsize > overlap#, "Window size must be larger than overlap"
+    assert wsize > overlap, "Window size must be larger than overlap"
 
-    file = sys.stdout
     start = time.time()
 
     def show(j):  # Print or update progress bar on screen
@@ -68,7 +67,33 @@ def pretty_show(f0, f1, npun, spectrum, low_err, upp_err, coherence, stat_name,
         ax2.text(0.95*f0 + 0.05*f1, 0.84, neg_text, fontsize=12)
 
     # Save figure
-    fig.savefig(filename, dpi=300, bbox_inches='tight')
+    if filename is not None:
+        fig.savefig(filename, dpi=300, bbox_inches='tight')
+    return fig
+
+
+def plot_hvratio(average_data, param, write_png=True):
+    station_name = average_data.station
+    num_windows = average_data.num_windows
+    if write_png:
+        if param.oname == 'default':
+            outfile = 'output/{}_p{}_win{}'.format(station_name, param.p, num_windows)
+        else:
+            if not param.oname.endswith('/'):
+                param.oname += '/'
+            outfile = param.oname + '{}_p{}_win{}'.format(station_name, param.p, num_windows)
+        outfile += '.png'
+    else:
+        outfile = None
+
+    err = param.plot_conf/2
+    pos_freq, pos_err, neg_freq, neg_err = average_data.get_frequency(param.freq_conf)
+
+    return pretty_show(param.f0, param.f1, param.npun, average_data.get_spectrum_percentile(50),
+                       average_data.get_spectrum_percentile(50-err),
+                       average_data.get_spectrum_percentile(50+err),
+                       average_data.get_coherence_percentile(50), station_name,
+                       pos_freq, pos_err, neg_freq, neg_err, filename=outfile)
 
 
 def write_data(freqs, spectrum, low_err, up_err, coherence, filename='out.txt'):

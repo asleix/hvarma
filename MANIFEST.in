@@ -1,0 +1,3 @@
+include hvarma/ext_c/gradient.so \
+    README.md \
+    LICENSE

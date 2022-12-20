@@ -1,24 +1,15 @@
 import unittest
 import io
 import contextlib
-import os, sys
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.dirname(SCRIPT_DIR))
 
 from numpy.testing import assert_array_almost_equal
 import numpy as np
-
-from include.read_input import ArmaParam, Data, Window
-from include.compute import compute_crosscovariance, compute_autocovariance,\
-                       compute_equations
-
-
-from include.processing import ProcessingWindow, AverageData
 
 
 class CovarianceTest(unittest.TestCase):
 
     def setUp(self):
+        from hvarma.read_input import Data
         self.Z_fn = 'data/B001_Z.sac'
         self.N_fn = 'data/B001_N.sac'
         self.E_fn = 'data/B001_E.sac'
@@ -27,6 +18,8 @@ class CovarianceTest(unittest.TestCase):
                          E_fname=self.E_fn)
 
     def test_crosscovariance1(self):
+        from hvarma.read_input import Window
+        from hvarma.compute import compute_crosscovariance
         self.set1 = ([ 1.73828596e+08+6.60849194e+07j,  6.32054345e+07+2.07464694e+08j,
                      -2.54828589e+08+3.21324056e+08j, -1.31609498e+08+3.89973541e+07j,
                      -4.28178907e+07+5.46974371e+07j,  9.74915622e+07+4.59257886e+08j,
@@ -48,6 +41,8 @@ class CovarianceTest(unittest.TestCase):
         assert_array_almost_equal(self.set1[1]/1e8, cov_zx_v/1e8)
 
     def test_crosscovariance2(self):
+        from hvarma.read_input import Window
+        from hvarma.compute import compute_crosscovariance
         self.set2 = ([ 7.68839918e+08+3.20875624e+08j,  9.39971753e+07+3.08121405e+08j,
                      -1.38147329e+08+2.80586218e+08j,  5.16377001e+08+3.15477898e+08j,
                      -4.27215147e+08-4.56944843e+07j,  9.03287709e+07+1.35888032e+08j,
@@ -71,6 +66,8 @@ class CovarianceTest(unittest.TestCase):
         assert_array_almost_equal(self.set2[1]/1e8, cov_zx_v/1e8)
 
     def test_autocovariance1(self):
+        from hvarma.read_input import Window
+        from hvarma.compute import compute_autocovariance
         self.set3 = ([ 2.87984429e+09+0.00000000e+00j,  1.85655767e+09+4.10987990e+08j,
                       7.06468559e+08+8.27135659e+08j,  2.42983625e+08+1.07233248e+09j,
                      -1.97140877e+08+9.58876013e+08j, -3.53097863e+08+8.45502744e+08j,
@@ -90,6 +87,8 @@ class CovarianceTest(unittest.TestCase):
         assert_array_almost_equal(self.set3[1]/1e8, cov_v/1e8)
 
     def test_autocovariance2(self):
+        from hvarma.read_input import Window
+        from hvarma.compute import compute_autocovariance
         self.set4 = ([ 7.28934951e+09+0.00000000e+00j,  3.26854860e+09+5.90404001e+08j,
                      -3.97073231e+07+1.76561521e+09j, -6.26044627e+07+2.40595417e+09j,
                      -1.44673979e+09+1.78538502e+09j, -1.39247079e+09+7.63443105e+08j,
@@ -114,6 +113,7 @@ class CovarianceTest(unittest.TestCase):
 class ModelEquationsTest(unittest.TestCase):
 
     def setUp(self):
+        from hvarma.read_input import Data
         self.Z_fn = 'data/B001_Z.sac'
         self.N_fn = 'data/B001_N.sac'
         self.E_fn = 'data/B001_E.sac'
@@ -121,9 +121,9 @@ class ModelEquationsTest(unittest.TestCase):
                          N_fname=self.N_fn, 
                          E_fname=self.E_fn)
 
-
     def test_equation_solutions(self):
-
+        from hvarma.read_input import Window
+        from hvarma.compute import compute_equations
         self.set1_matrix = np.array([  5.13972248e+19,  3.10707417e+19,  2.11507709e+19, -1.98936107e+18,
                              -1.08894509e+19, -2.35618707e+18, -1.97935396e+18, -4.45278216e+18,
                              -4.21913598e+18, -3.38644522e+18, -9.30082847e+18,  3.10707417e+19,
@@ -139,11 +139,11 @@ class ModelEquationsTest(unittest.TestCase):
         assert_array_almost_equal(self.set1_indep/1e20, indep/1e20, decimal=8)
 
 
-
-
-class ProcessingWindowTest(unittest.TestCase):
+class HVArmaTest(unittest.TestCase):
 
     def setUp(self):
+        from hvarma.read_input import ArmaParam, Data, Window
+        from hvarma.processing import HVarma
         self.Z_fn = 'data/B001_Z.sac'
         self.N_fn = 'data/B001_N.sac'
         self.E_fn = 'data/B001_E.sac'
@@ -155,7 +155,7 @@ class ProcessingWindowTest(unittest.TestCase):
 
         self.param = ArmaParam(filename=self.filename)
         self.window = Window(self.data, 10, self.param.wsize)
-        self.pwindow = ProcessingWindow(self.window, self.param)
+        self.pwindow = HVarma(self.window, self.param)
 
         self.pwindow.solve_arma() # This should be improved!
         self.pwindow.get_coherence()
@@ -202,8 +202,18 @@ class ProcessingWindowTest(unittest.TestCase):
 class AverageDataTest(unittest.TestCase):
 
     def setUp(self):
-        from include.write_output import progress_bar
-        from run import get_data_windows
+        from hvarma.write_output import progress_bar
+        from hvarma.read_input import ArmaParam, Data, Window
+        from hvarma.processing import HVarma, AverageData
+        
+        def get_data_windows(data, size, overlap):
+            """ Generator of data slices from data of a given size,
+                overlapping one another """
+            if data.size < size:
+                raise Exception('Window exceeds available data')
+
+            for start in range(0, data.size-size+1, size-overlap):
+                yield Window(data, start, size)
 
         self.Z_fn = 'data/B001_Z.sac'
         self.N_fn = 'data/B001_N.sac'
@@ -222,8 +232,8 @@ class AverageDataTest(unittest.TestCase):
         f = io.StringIO()
         with contextlib.redirect_stdout(f): # catch stdout
             for idx, data_window in enumerate(get_data_windows(self.data, param.wsize, param.overlap)):
-                nwin = next(progress)
-                model = ProcessingWindow(data_window, param)
+                next(progress)
+                model = HVarma(data_window, param)
                 model.solve_arma()
                 model.get_coherence()
 
@@ -276,5 +286,4 @@ class AverageDataTest(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    #Testing()
     unittest.main(verbosity=2)

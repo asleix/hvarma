@@ -1,10 +1,10 @@
 import numpy as np
-from include.compute import compute_crosscovariance, compute_autocovariance,\
+from hvarma.compute import compute_crosscovariance, compute_autocovariance,\
                        compute_equations, transfer_function, compute_coherence
-from include.read_input import ArmaParam, Window
+from hvarma.read_input import ArmaParam, Window
 
 
-class ProcessingWindow:
+class HVarma:
     """ Class that handles processing of a single time window """
     def __init__(self, window, param):
         """ Initializes window with defined parameters. """
@@ -97,7 +97,10 @@ class AverageData:
     """ Helper class to handle calculations over all windows """
 
     def __init__(self, window_list, param):
+        assert len(window_list) > 0, "window_list should not be empty"
         self.param = param
+        self.num_windows = len(window_list)
+        self.station = window_list[0].data.station
         res, coh, aic = [], [], []
         for model in window_list:
             res.append(model.transfer_fun())
