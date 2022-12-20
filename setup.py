@@ -5,24 +5,12 @@ import subprocess
 
 
 def compile_and_copy_c_files():
-    """Use the subprocess module to compile the C software."""
+    """Use the subprocess module to compile the C functions."""
     src_path = 'hvarma/ext_c/'
     subprocess.check_call('make', cwd=src_path, shell=True)
 
-    assert os.path.exists('hvarma/ext_c/gradient.so'), "Make sure shared object exists"
-
-    # move into package directory
-    import site, shutil
-    package_dirs = site.getsitepackages()
-    for pkg_dir in package_dirs:
-        if 'hvarma' not in os.listdir(pkg_dir):
-            os.mkdir(os.path.join(pkg_dir, 'hvarma'))
-        ext_dir = os.path.join(pkg_dir, 'hvarma', 'c_ext')
-        if not os.path.exists(ext_dir):
-            os.mkdir(ext_dir)
-        lib_path = os.path.join(ext_dir, 'gradient.so')
-        if not os.path.exists(lib_path):
-            shutil.copy('hvarma/ext_c/gradient.so', ext_dir)
+    assert os.path.exists('hvarma/ext_c/gradient.so'), \
+        "Make sure shared object exists"
 
 
 class CustomInstall(install):
@@ -50,4 +38,5 @@ This is really just a demo package.
         'pytest'
         ],
         cmdclass={'install': CustomInstall},
+        package_data={'hvarma':['ext_c/gradient.so']}
 )
