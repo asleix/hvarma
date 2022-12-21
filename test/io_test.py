@@ -77,9 +77,9 @@ class ArmaParamTest(unittest.TestCase):
             'model_order': 10,
             'neg_freq': -10,
             'pos_freq': 10,
-            'freq_points': 5000,
-            'window_size': 1024,
-            'max_windows': 100
+            'freq_points': 2000,
+            'window_size': 512,
+            'max_windows': 250
         })
         self.assertDictEqual(self.setA.get_params(), param.get_params())
 

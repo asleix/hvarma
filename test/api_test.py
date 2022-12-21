@@ -48,7 +48,7 @@ class FindModelOrderTest(unittest.TestCase):
     def test_convergence(self):
         from hvarma.running import is_converged
         from collections import OrderedDict
-        self.assertTrue(is_converged(self.data, self.param, OrderedDict(), 41, tol=0.05))
+        self.assertTrue(is_converged(self.data, self.param, OrderedDict(), 78, tol=0.05))
 
     def test_convergence_condition(self):
         from hvarma.running import convergence_condition
@@ -76,7 +76,7 @@ class TestBinarySearch(unittest.TestCase):
         from hvarma.running import find_optimal_order_fast
         final_order = find_optimal_order_fast(self.data, self.param, 0.1,
                                               start_order=4, verbose=False, plot=False)
-        self.assertEqual(final_order, 32)
+        self.assertEqual(final_order, 65)
 
 
 if __name__ == '__main__':

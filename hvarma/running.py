@@ -93,18 +93,18 @@ def convergence_condition(pos_diff, neg_diff, tol):
 
 
 def get_results_for_order(data, param, tested_orders, order):
-    """ Run model for given order and order-1
+    """ Run model for given order and order-3
         if not already computed in tested_orders."""
     param_cur = param.update({'model_order': order})
-    param_prev = param.update({'model_order': order-1})
+    param_prev = param.update({'model_order': order-3})
 
     if order not in tested_orders:
         tested_orders[order] = run_model(data, param_cur, plot=False, verbose=False, write=False)
 
-    if order-1 not in tested_orders:
-        tested_orders[order-1] = run_model(data, param_prev, plot=False, verbose=False, write=False)
+    if order-3 not in tested_orders:
+        tested_orders[order-3] = run_model(data, param_prev, plot=False, verbose=False, write=False)
 
-    return tested_orders[order], tested_orders[order-1]
+    return tested_orders[order], tested_orders[order-3]
 
 
 def is_converged(data, param, tested_orders, order, tol=0.1):
@@ -142,7 +142,7 @@ def find_optimal_order_fast(data, param, tol=0.05, start_order=4, output_dir='.'
     Use fast algorithm to find a small converged hvarma order for given data.
     """
     out = sys.stdout if verbose else open(os.devnull, "w")
-    assert start_order > 1
+    assert start_order >= 4
 
     beg = time.time()
     order = start_order
@@ -165,7 +165,7 @@ def find_optimal_order_fast(data, param, tol=0.05, start_order=4, output_dir='.'
     final_order = binary_search(data, param, tested_orders, int(order / 2), order,
                                 tol=tol, verbose=verbose)
     if plot:
-        plot_order_search(tested_orders, final_order, tol=tol, output_dir=output_dir)
+        plot_order_search(tested_orders, final_order, data.station, tol=tol, output_dir=output_dir)
 
     print('Elapsed:', round((time.time() - beg) / 60, 1), 'min', file=out)
 

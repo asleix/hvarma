@@ -107,7 +107,7 @@ def write_data(freqs, spectrum, low_err, up_err, coherence, filename='out.txt'):
             print(freq, spec, low, up, coh, file=f, sep=' ')
 
 
-def plot_order_search(orders, found_p, tol=0.1, output_dir='.'):
+def plot_order_search(orders, found_p, stat_name, tol=0.1, output_dir='.'):
     ps = []
     pos_freq = []
     neg_freq = []
@@ -121,12 +121,12 @@ def plot_order_search(orders, found_p, tol=0.1, output_dir='.'):
     pos_freq = np.array(pos_freq)
     neg_freq = np.array(neg_freq)
 
-    fig1 = pretty_plot_search(ps, pos_freq, neg_freq, found_p)
-    fig2 = pretty_plot_search_errors(ps, pos_freq, neg_freq, found_p, tol)
+    fig1 = pretty_plot_search(ps, pos_freq, neg_freq, found_p, stat_name)
+    fig2 = pretty_plot_search_errors(ps, pos_freq, neg_freq, found_p, stat_name, tol)
 
     if output_dir is not None:
-        filename1 = os.path.join(output_dir, f'order_search_freq.png')
-        filename2 = os.path.join(output_dir, f'order_search_diff.png')
+        filename1 = os.path.join(output_dir, f'{stat_name}_order_search_freq.png')
+        filename2 = os.path.join(output_dir, f'{stat_name}_order_search_diff.png')
 
         fig1.savefig(filename1, dpi=300, bbox_inches='tight')
         fig2.savefig(filename2, dpi=300, bbox_inches='tight')
@@ -134,10 +134,14 @@ def plot_order_search(orders, found_p, tol=0.1, output_dir='.'):
     return fig1, fig2
 
 
-def pretty_plot_search(ps, pos_freq, neg_freq, found_p, y_label='Frequency', tol=None):
+def pretty_plot_search(ps, pos_freq, neg_freq, found_p, stat_name, y_label='Frequency', tol=None):
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
+    # Set Times font
+    plt.rc('font', family='serif', size=12)
+    plt.rcParams['mathtext.fontset'] = 'dejavuserif'
+
     fig = plt.figure()
     plt.rc('axes', axisbelow=True)
     plt.grid()
@@ -150,14 +154,17 @@ def pretty_plot_search(ps, pos_freq, neg_freq, found_p, y_label='Frequency', tol
 
     if tol is not None:
         plt.plot([min(ps), max(ps)], [tol, tol], 'k--', linewidth=1)
+        plt.yscale('log')
 
     plt.minorticks_on()
     plt.xlabel('Model order')
     plt.ylabel(y_label)
+    plt.text(0.85 * max(ps) + 0.15 * min(ps), 0.88*max(max(pos_freq), max(neg_freq)),
+             stat_name, fontweight='bold', fontsize=14)
     return fig
 
 
-def pretty_plot_search_errors(ps, pos_freq, neg_freq, found_p, tol=0.1):
+def pretty_plot_search_errors(ps, pos_freq, neg_freq, found_p, stat_name, tol=0.1):
     """ """
     ids = ps.argsort()
     ps = ps[ids]
@@ -166,11 +173,13 @@ def pretty_plot_search_errors(ps, pos_freq, neg_freq, found_p, tol=0.1):
     diffs_pos = []
     diffs_neg = []
     orders = []
-    for i in range(1, len(ps)):
-        if ps[i] == ps[i-1]+1:
-            diffs_pos.append(abs(pos_freq[i]-pos_freq[i-1]))
-            diffs_neg.append(abs(neg_freq[i]-neg_freq[i-1]))
-            orders.append(ps[i])
+    for p in ps:
+        if p-3 in ps:
+            orders.append(p)
+            pos = abs(pos_freq[np.argmax(ps == p)] - pos_freq[ps == p-3])
+            neg = abs(neg_freq[np.argmax(ps == p)] - neg_freq[ps == p-3])
+            diffs_pos.append(neg)
+            diffs_neg.append(pos)
 
     return pretty_plot_search(np.array(orders), np.array(diffs_pos), np.array(diffs_neg),
-                              found_p, 'Freq. diff', tol=tol)
+                              found_p, stat_name, 'Freq. diff', tol=tol)
