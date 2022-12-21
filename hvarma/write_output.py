@@ -76,6 +76,11 @@ def pretty_show(f0, f1, npun, spectrum, low_err, upp_err, coherence, stat_name,
 
 
 def plot_hvratio(average_data, param, write_png=True):
+    """ Display the results of an hvarma model calculation.
+        Draw H/V ratio spectrum. It's a scatter plot H/V amplitude vs frequency.
+        Display the spectrum along with upper and lower error bounds.
+        Also display the estimated frequency of the peaks, both positive and negative.
+    """
     station_name = average_data.station
     num_windows = average_data.num_windows
     if write_png:
@@ -108,6 +113,7 @@ def write_data(freqs, spectrum, low_err, up_err, coherence, filename='out.txt'):
 
 
 def plot_order_search(orders, found_p, stat_name, tol=0.1, output_dir='.'):
+    """ Create relevant plots for the hvarma order finder algorithm. """
     ps = []
     pos_freq = []
     neg_freq = []
@@ -135,6 +141,7 @@ def plot_order_search(orders, found_p, stat_name, tol=0.1, output_dir='.'):
 
 
 def pretty_plot_search(ps, pos_freq, neg_freq, found_p, stat_name, y_label='Frequency', tol=None):
+    """ Plot the successive frequency values and highlight an order of choice """
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
@@ -165,7 +172,7 @@ def pretty_plot_search(ps, pos_freq, neg_freq, found_p, stat_name, y_label='Freq
 
 
 def pretty_plot_search_errors(ps, pos_freq, neg_freq, found_p, stat_name, tol=0.1):
-    """ """
+    """ Plot the absolute value of the frequency differences in consecutive model orders. """
     ids = ps.argsort()
     ps = ps[ids]
     pos_freq = pos_freq[ids]

@@ -18,9 +18,9 @@ def main(args):
                 E_fname=args.N_fname)
     param = ArmaParam(args.args).update({
         'freq_points': 2000,
-        'neg_freq':  -10,
-        'pos_freq':  10,
-        'max_windows': 250,
+        'neg_freq':    -10,
+        'pos_freq':    10,
+        'max_windows': 1000,
         'window_size': 512,
     })
     args_dict = select_parameters_from_args(args)

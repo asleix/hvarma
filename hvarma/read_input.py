@@ -146,7 +146,7 @@ class Data:
         self.dataZ, headerZ = get_data(Z_fname)
 
         def is_data_sync(headerE, headerN, headerZ):
-            fields = ['sampling_rate', 'starttime', 'endtime']
+            fields = ['sampling_rate', 'starttime', 'endtime', 'station']
             for field in fields:
                 if headerE[field] != headerN[field] or headerN[field] != headerZ[field]:
                     raise Exception('Data not sync at ' + field)
