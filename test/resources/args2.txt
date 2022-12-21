@@ -1,9 +1,9 @@
-model_order=74
+model_order=10
 maxtau=128
-neg_freq=-20
-pos_freq=20
-freq_points=1024
-window_size=512
+neg_freq=-10
+pos_freq=10
+freq_points=5000
+window_size=1024
 overlap=256
 max_windows=100
 freq_conf=20

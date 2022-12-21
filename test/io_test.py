@@ -48,25 +48,40 @@ class ArmaParamTest(unittest.TestCase):
 
     def setUp(self):
         self.filename = 'test/resources/args1.txt'
+        self.filename2 = 'test/resources/args2.txt'
 
     def test_input1(self):
         from hvarma.read_input import ArmaParam
-        param = ArmaParam(filename=self.filename)
+        param = ArmaParam(arg=self.filename)
 
-        self.assertEqual(param.p, 74)
+        self.assertEqual(param.model_order, 74)
         self.assertEqual(param.maxtau, 128)
         self.assertEqual(param.mu, 0.5)
         self.assertEqual(param.nu, 0.5)
         self.assertEqual(param.nfir, 40)
-        self.assertEqual(param.f0, -20)
-        self.assertEqual(param.f1, 20)
-        self.assertEqual(param.npun, 1024)
-        self.assertEqual(param.wsize, 512)
+        self.assertEqual(param.neg_freq, -20)
+        self.assertEqual(param.pos_freq, 20)
+        self.assertEqual(param.freq_points, 1024)
+        self.assertEqual(param.window_size, 512)
         self.assertEqual(param.overlap, 256)
-        self.assertEqual(param.maxwin, 100)
+        self.assertEqual(param.max_windows, 100)
         self.assertEqual(param.freq_conf, 20)
         self.assertEqual(param.plot_conf, 50)
-        self.assertEqual(param.oname, 'default')
+        self.assertEqual(param.output_dir, 'default')
+
+    def test_update(self):
+        from hvarma.read_input import ArmaParam
+
+        self.setA = ArmaParam(self.filename2)
+        param = ArmaParam(self.filename).update({
+            'model_order': 10,
+            'neg_freq': -10,
+            'pos_freq': 10,
+            'freq_points': 5000,
+            'window_size': 1024,
+            'max_windows': 100
+        })
+        self.assertDictEqual(self.setA.get_params(), param.get_params())
 
 
 class ProgressBarTest(unittest.TestCase):
