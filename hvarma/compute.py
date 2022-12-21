@@ -66,7 +66,7 @@ def compute_equations(dataE, dataN, dataZ, mu, nu, wsize, p, maxtau):
 
 
 def transfer_function(f0, f1, npun, t, a, b, p):
-    """ Compute H/V in frequency range [f0,f1] with npun points,
+    """ Compute H/V in frequency range [neg_freq,pos_freq] with freq_points points,
         for a model with coefficients a, b, (length p). t is sampling interval """
 
     # Check consistency with Nyquist freq.
@@ -86,7 +86,7 @@ def transfer_function(f0, f1, npun, t, a, b, p):
 
 
 def compute_coherence(auto_cov_x, auto_cov_v, cross_cov_v_zx, cross_cov_zx_v, nfir, f0, f1, npun, t):
-    """ Compute coherence in the [f0, f1] interval.
+    """ Compute coherence in the [neg_freq, pos_freq] interval.
         nfir is the number of correlation that are considered.
         Read reference for formula details.                     """
     if f1 < f0 or 1 / (2 * t) < max(abs(f0), abs(f1)):

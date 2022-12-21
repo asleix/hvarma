@@ -1,6 +1,5 @@
-import sys
+import os, sys
 import time
-import matplotlib.pyplot as plt
 import numpy as np
 
 
@@ -36,6 +35,10 @@ def pretty_show(f0, f1, npun, spectrum, low_err, upp_err, coherence, stat_name,
     """ Draw H/V ratio spectrum. It's a scatter plot H/V amplitude vs frequency.
         Display the spectrum along with upper and lower error bounds.
         Also display the estimated frequency of the peaks, both positive and negative. """
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+
     freqs = np.linspace(f0, f1, npun)
 
     # Set Times font
@@ -73,15 +76,20 @@ def pretty_show(f0, f1, npun, spectrum, low_err, upp_err, coherence, stat_name,
 
 
 def plot_hvratio(average_data, param, write_png=True):
+    """ Display the results of an hvarma model calculation.
+        Draw H/V ratio spectrum. It's a scatter plot H/V amplitude vs frequency.
+        Display the spectrum along with upper and lower error bounds.
+        Also display the estimated frequency of the peaks, both positive and negative.
+    """
     station_name = average_data.station
     num_windows = average_data.num_windows
     if write_png:
-        if param.oname == 'default':
-            outfile = 'output/{}_p{}_win{}'.format(station_name, param.p, num_windows)
+        if param.output_dir == 'default':
+            outfile = './{}_p{}_win{}'.format(station_name, param.model_order, num_windows)
         else:
-            if not param.oname.endswith('/'):
-                param.oname += '/'
-            outfile = param.oname + '{}_p{}_win{}'.format(station_name, param.p, num_windows)
+            if not param.output_dir.endswith('/'):
+                param.output_dir += '/'
+            outfile = param.output_dir + '{}_p{}_win{}'.format(station_name, param.model_order, num_windows)
         outfile += '.png'
     else:
         outfile = None
@@ -89,7 +97,7 @@ def plot_hvratio(average_data, param, write_png=True):
     err = param.plot_conf/2
     pos_freq, pos_err, neg_freq, neg_err = average_data.get_frequency(param.freq_conf)
 
-    return pretty_show(param.f0, param.f1, param.npun, average_data.get_spectrum_percentile(50),
+    return pretty_show(param.neg_freq, param.pos_freq, param.freq_points, average_data.get_spectrum_percentile(50),
                        average_data.get_spectrum_percentile(50-err),
                        average_data.get_spectrum_percentile(50+err),
                        average_data.get_coherence_percentile(50), station_name,
@@ -102,3 +110,83 @@ def write_data(freqs, spectrum, low_err, up_err, coherence, filename='out.txt'):
         print('Frequency', 'H/V', 'Low_err', 'Upp_err', 'Coherence', file=f, sep=' ')
         for freq, spec, low, up, coh in zip(freqs, spectrum, low_err, up_err, coherence):
             print(freq, spec, low, up, coh, file=f, sep=' ')
+
+
+def plot_order_search(orders, found_p, stat_name, tol=0.1, output_dir='.'):
+    """ Create relevant plots for the hvarma order finder algorithm. """
+    ps = []
+    pos_freq = []
+    neg_freq = []
+    for p in orders:
+        ps.append(p)
+        freqs = orders[p].get_frequency(20)
+        pos_freq.append(freqs[0])
+        neg_freq.append(freqs[2])
+
+    ps = np.array(ps)
+    pos_freq = np.array(pos_freq)
+    neg_freq = np.array(neg_freq)
+
+    fig1 = pretty_plot_search(ps, pos_freq, neg_freq, found_p, stat_name)
+    fig2 = pretty_plot_search_errors(ps, pos_freq, neg_freq, found_p, stat_name, tol)
+
+    if output_dir is not None:
+        filename1 = os.path.join(output_dir, f'{stat_name}_order_search_freq.png')
+        filename2 = os.path.join(output_dir, f'{stat_name}_order_search_diff.png')
+
+        fig1.savefig(filename1, dpi=300, bbox_inches='tight')
+        fig2.savefig(filename2, dpi=300, bbox_inches='tight')
+
+    return fig1, fig2
+
+
+def pretty_plot_search(ps, pos_freq, neg_freq, found_p, stat_name, y_label='Frequency', tol=None):
+    """ Plot the successive frequency values and highlight an order of choice """
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    # Set Times font
+    plt.rc('font', family='serif', size=12)
+    plt.rcParams['mathtext.fontset'] = 'dejavuserif'
+
+    fig = plt.figure()
+    plt.rc('axes', axisbelow=True)
+    plt.grid()
+    plt.plot([min(ps), max(ps)], [0, 0], 'k-', linewidth=1)
+
+    plt.scatter(ps, pos_freq, label='Positive', facecolors='none', edgecolors='k')
+    plt.scatter(ps, neg_freq, label='Negative', facecolors='k', edgecolors='k')
+    plt.scatter(found_p, pos_freq[np.argmax(ps == found_p)], facecolors='none', edgecolors='r')
+    plt.scatter(found_p, neg_freq[np.argmax(ps == found_p)], facecolors='r', edgecolors='r')
+
+    if tol is not None:
+        plt.plot([min(ps), max(ps)], [tol, tol], 'k--', linewidth=1)
+        plt.yscale('log')
+
+    plt.minorticks_on()
+    plt.xlabel('Model order')
+    plt.ylabel(y_label)
+    plt.text(0.85 * max(ps) + 0.15 * min(ps), 0.88*max(max(pos_freq), max(neg_freq)),
+             stat_name, fontweight='bold', fontsize=14)
+    return fig
+
+
+def pretty_plot_search_errors(ps, pos_freq, neg_freq, found_p, stat_name, tol=0.1):
+    """ Plot the absolute value of the frequency differences in consecutive model orders. """
+    ids = ps.argsort()
+    ps = ps[ids]
+    pos_freq = pos_freq[ids]
+    neg_freq = neg_freq[ids]
+    diffs_pos = []
+    diffs_neg = []
+    orders = []
+    for p in ps:
+        if p-3 in ps:
+            orders.append(p)
+            pos = abs(pos_freq[np.argmax(ps == p)] - pos_freq[ps == p-3])
+            neg = abs(neg_freq[np.argmax(ps == p)] - neg_freq[ps == p-3])
+            diffs_pos.append(neg)
+            diffs_neg.append(pos)
+
+    return pretty_plot_search(np.array(orders), np.array(diffs_pos), np.array(diffs_neg),
+                              found_p, stat_name, 'Freq. diff', tol=tol)

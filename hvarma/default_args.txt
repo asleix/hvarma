@@ -1,11 +1,14 @@
 model_order=74
 maxtau=128
+mu=0.5
+nu=0.5
+nfir=40
 neg_freq=-20
 pos_freq=20
 freq_points=1024
 window_size=512
 overlap=256
-max_windows=100
+max_windows=1000
 freq_conf=20
 plot_conf=50
 output_dir=default

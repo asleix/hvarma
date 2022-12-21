@@ -38,5 +38,46 @@ class RunModelTest(unittest.TestCase):
         self.assertIs(HVarma_test, HVarma)
 
 
+class FindModelOrderTest(unittest.TestCase):
+
+    def setUp(self):
+        from hvarma import Data, ArmaParam
+        self.param = ArmaParam('test/resources/args2.txt')
+        self.data = Data('data/B001_E.sac', 'data/B001_N.sac', 'data/B001_Z.sac')
+
+    def test_convergence(self):
+        from hvarma.running import is_converged
+        from collections import OrderedDict
+        self.assertTrue(is_converged(self.data, self.param, OrderedDict(), 78, tol=0.05))
+
+    def test_convergence_condition(self):
+        from hvarma.running import convergence_condition
+        self.assertTrue(convergence_condition(0.01, 0.03, 0.05))
+        self.assertTrue(convergence_condition(0.01, 0.08, 0.05))
+        self.assertFalse(convergence_condition(0.02, 0.09, 0.05))
+        self.assertFalse(convergence_condition(0.09, 0.02, 0.05))
+
+
+class TestBinarySearch(unittest.TestCase):
+
+    def setUp(self):
+        from hvarma import Data, ArmaParam
+        self.data = Data('data/B001_E.sac', 'data/B001_N.sac', 'data/B001_Z.sac')
+        self.param = ArmaParam({
+            'arma_order': 10,
+            'ini_freq': -10,
+            'fin_freq': 10,
+            'num_points': 2000,
+            'window_size': 1024,
+            'max_windows': 50
+        })
+
+    def test_binary_search(self):
+        from hvarma.running import find_optimal_order_fast
+        final_order = find_optimal_order_fast(self.data, self.param, 0.1,
+                                              start_order=4, verbose=False, plot=False)
+        self.assertEqual(final_order, 65)
+
+
 if __name__ == '__main__':
     unittest.main(verbosity=2)

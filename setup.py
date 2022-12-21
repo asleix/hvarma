@@ -22,13 +22,11 @@ class CustomInstall(install):
 
 setup (name = 'hvarma',
        version = '1.0',
-       description = 'This is a demo package',
+       description = 'Horizontal-to-vertical ratio calculator',
        author = 'Aleix Segui',
        author_email = 'aleix.segui@estudiantat.upc.edu',
        url = 'https://docs.python.org/extending/building',
-       long_description = '''
-This is really just a demo package.
-''',
+       long_description = 'Horizontal-to-vertical ratio calculator',
        packages=['hvarma'],
        install_requires=[
         'numpy>=1.19.0',

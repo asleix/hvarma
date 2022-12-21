@@ -2,40 +2,76 @@ import numpy as np
 from obspy import read
 import os
 
+DEFAULT_PARAMS = {
+    'model_order':       int,
+    'maxtau':            int,
+    'mu':                float,
+    'nu':                float,
+    'nfir':              int,
+    'neg_freq':          float,
+    'pos_freq':          float,
+    'freq_points':       int,
+    'window_size':       int,
+    'overlap':           int,
+    'max_windows':       int,
+    'freq_conf':         float,
+    'plot_conf':         float,
+    'output_dir':        str,
+}
+
 
 class ArmaParam:
     """ Parameters for computation """
-    def __init__(self, filename='default'):
+    model_order: int
+    maxtau:      int
+    mu:          float
+    nu:          float
+    nfir:        int
+    neg_freq:    float
+    pos_freq:    float
+    freq_points: int
+    window_size: int
+    overlap:     int
+    max_windows: int
+    freq_conf:   float
+    plot_conf:   float
+    output_dir:  str
+
+    def __init__(self, arg='default'):
+        assert isinstance(arg, str) or isinstance(arg, dict), "Invalid argument"
+        filename = arg if isinstance(arg, str) else 'default'
+        default_filename = os.path.dirname(os.path.abspath(__file__)) + \
+                           os.path.sep + 'default_args.txt'
+        default_values = self.read_params(default_filename)
+
         if filename == 'default':
-            filename = os.path.dirname(os.path.abspath(__file__)) + os.path.sep + '../args.txt'
+            filename = default_filename
         self.filename = filename
-        values = self.read_params()
 
-        self.p = int(values['arma_order'])
-        self.maxtau = int(values['maxtau'])
-        self.mu = float(values['forward_weight'])
-        self.nu = float(values['backward_weight'])
-        self.nfir = int(values['nfir'])
-        self.f0 = float(values['ini_freq'])
-        self.f1 = float(values['fin_freq'])
-        self.npun = int(values['num_points'])
-        self.wsize = int(values['window_size'])
-        self.overlap = int(values['window_shift'])
-        self.maxwin = int(values['max_windows'])
-        self.freq_conf = float(values['freq_conf_interval'])
-        self.plot_conf = float(values['spectral_conf_interval'])
-        self.oname = str(values['output_path'])
+        # Overwrite default values if provided in argument
+        values = self.read_params(filename)
+        default_values.update(values)
+        if isinstance(arg, dict):
+            default_values.update(arg)
+        values = default_values
 
+        # Set class attributes from dictionary
+        for param, ptype in DEFAULT_PARAMS.items():
+            values[param] = ptype(values[param])
+            setattr(self, param, values[param])
+
+        self.dict_values = values
         self.assert_parameters()
 
-    def read_params(self):
+    @staticmethod
+    def get_param_list():
+        return list(DEFAULT_PARAMS.keys())
+
+    def read_params(self, filename):
         """ Read arguments from file. """
         values = {}
-        parameter_list = ['arma_order', 'maxtau', 'nfir', 'ini_freq', 'fin_freq',
-                          'num_points', 'window_size', 'window_shift', 'max_windows',
-                          'freq_conf_interval', 'spectral_conf_interval', 'output_path',
-                          'forward_weight', 'backward_weight']
-        with open(self.filename, 'r') as f:
+        parameter_list = ArmaParam.get_param_list()
+        with open(filename, 'r') as f:
             for line in f:
                 line = line.replace(' ', '')
                 line = line.replace('\n', '')
@@ -47,18 +83,35 @@ class ArmaParam:
                     raise AttributeError('Parameter ' + parameter + ' unknown.')
                 values[parameter] = value
 
-        if len(values.keys()) != len(parameter_list):
-            raise AttributeError('Wrong number of input parameters. Check arguments file.')
-
         return values
 
     def assert_parameters(self):
         """ Perform some assertions to ensure parameters are consistent. """
-        assert 2*self.maxtau <= self.wsize
-        assert self.p <= self.maxtau
-        assert self.overlap <= self.wsize
-        assert self.f0 < self.f1
+        assert 2*self.maxtau <= self.window_size
+        assert self.model_order <= self.maxtau
+        assert self.overlap <= self.window_size
+        assert self.neg_freq < self.pos_freq
         assert self.nfir <= self.maxtau
+
+    def get_params(self):
+        return self.dict_values.copy()
+
+    def __copy__(self):
+        return ArmaParam(self.get_params())
+
+    def copy(self):
+        from copy import copy
+        return copy(self)
+
+    def update(self, arg):
+        assert type(arg) is dict, "Usage: arg={'param':value}"
+        dict_values = self.get_params()
+        assert all([key in dict_values for key in arg]), "Wrong parameter"
+
+        for key, value in arg.items():
+            dict_values[key] = value
+
+        return ArmaParam(dict_values)
 
 
 class Data:
@@ -93,7 +146,7 @@ class Data:
         self.dataZ, headerZ = get_data(Z_fname)
 
         def is_data_sync(headerE, headerN, headerZ):
-            fields = ['sampling_rate', 'starttime', 'endtime']
+            fields = ['sampling_rate', 'starttime', 'endtime', 'station']
             for field in fields:
                 if headerE[field] != headerN[field] or headerN[field] != headerZ[field]:
                     raise Exception('Data not sync at ' + field)

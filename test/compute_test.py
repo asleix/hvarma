@@ -153,8 +153,8 @@ class HVArmaTest(unittest.TestCase):
                          N_fname=self.N_fn, 
                          E_fname=self.E_fn)
 
-        self.param = ArmaParam(filename=self.filename)
-        self.window = Window(self.data, 10, self.param.wsize)
+        self.param = ArmaParam(arg=self.filename)
+        self.window = Window(self.data, 10, self.param.window_size)
         self.pwindow = HVarma(self.window, self.param)
 
         self.pwindow.solve_arma() # This should be improved!
@@ -223,15 +223,15 @@ class AverageDataTest(unittest.TestCase):
                          N_fname=self.N_fn, 
                          E_fname=self.E_fn)
 
-        param = ArmaParam(filename=self.filename)
+        param = ArmaParam(arg=self.filename)
 
         processed_windows = []
         maxwin = 100
-        param.maxwin = maxwin
-        progress = progress_bar(self.data.size, param.wsize, param.overlap, maxwin)
+        param.max_windows = maxwin
+        progress = progress_bar(self.data.size, param.window_size, param.overlap, maxwin)
         f = io.StringIO()
         with contextlib.redirect_stdout(f): # catch stdout
-            for idx, data_window in enumerate(get_data_windows(self.data, param.wsize, param.overlap)):
+            for idx, data_window in enumerate(get_data_windows(self.data, param.window_size, param.overlap)):
                 next(progress)
                 model = HVarma(data_window, param)
                 model.solve_arma()

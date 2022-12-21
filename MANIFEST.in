@@ -1,3 +1,5 @@
-include hvarma/ext_c/gradient.so \
+include \
+    hvarma/ext_c/gradient.so \
+    hvarma/default_args.txt \
     README.md \
     LICENSE

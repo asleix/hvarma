@@ -1,11 +1,11 @@
-model_order=74
+model_order=10
 maxtau=128
-neg_freq=-20
-pos_freq=20
-freq_points=1024
+neg_freq=-10
+pos_freq=10
+freq_points=2000
 window_size=512
 overlap=256
-max_windows=100
+max_windows=250
 freq_conf=20
 plot_conf=50
 output_dir=default

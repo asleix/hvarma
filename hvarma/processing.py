@@ -46,44 +46,44 @@ class HVarma:
 
         # Find system of equations satisfying optimality conditions
         mat, indep = compute_equations(self.data.dataE, self.data.dataN, self.data.dataZ, mu, nu,
-                                       self.param.wsize, self.param.p, self.param.maxtau)
+                                       self.param.window_size, self.param.model_order, self.param.maxtau)
 
         solution = np.linalg.solve(mat, indep)
 
         solution = np.concatenate(([1], solution))
 
         # Store optimal coefficients
-        pp = self.param.p+1
+        pp = self.param.model_order+1
         self.a = solution[:pp]
         self.b = solution[pp:2*pp] + 1j*solution[2*pp:]
 
     def get_correlations(self):
         """ Compute auto and cross correlations of data. """
         auto_cov_x, auto_cov_v = compute_autocovariance(self.data.dataE, self.data.dataN, self.data.dataZ,
-                                                        self.param.wsize, self.param.maxtau)
+                                                        self.param.window_size, self.param.maxtau)
         cross_cov_v_zx, cross_cov_zx_v = compute_crosscovariance(self.data.dataE, self.data.dataN, self.data.dataZ,
                                                                  self.data.size, self.param.maxtau)
         return auto_cov_x, auto_cov_v, cross_cov_v_zx, cross_cov_zx_v
 
     def transfer_fun(self):
         """ Obtain H/V amplitude from coefficients in the corresponding frequency interval. """
-        return transfer_function(self.param.f0, self.param.f1, self.param.npun, 1./self.data.sampling_rate,
-                                 self.a, self.b, self.param.p+1)
+        return transfer_function(self.param.neg_freq, self.param.pos_freq, self.param.freq_points, 1. / self.data.sampling_rate,
+                                 self.a, self.b, self.param.model_order + 1)
 
     def get_coherence(self):
         """ Call corresponding functions to compute coherence. """
         if self.coherence is None:
             auto_cov_x, auto_cov_v, cross_cov_v_zx, cross_cov_zx_v = self.get_correlations()
             self.coherence = compute_coherence(auto_cov_x, auto_cov_v, cross_cov_v_zx, cross_cov_zx_v,
-                                               self.param.nfir, self.param.f0, self.param.f1,
-                                               self.param.npun, 1./self.data.sampling_rate)
+                                               self.param.nfir, self.param.neg_freq, self.param.pos_freq,
+                                               self.param.freq_points, 1. / self.data.sampling_rate)
         return self.coherence
 
     def get_AIC(self):
         """ Compute AIC = n * log (ssr/n) + 2*k. """
         x = self.data.dataN + 1j * self.data.dataE
         v = self.data.dataZ
-        p, size = self.param.p+1, self.param.wsize
+        p, size = self.param.model_order+1, self.param.window_size
         a, b = self.a, self.b
         ssr = 0
         for i in range(p, size):
@@ -113,8 +113,8 @@ class AverageData:
 
     def get_frequency(self, conf):
         """ Get resonance frequency, corresponding to the maximum peak """
-        f0, f1 = self.param.f0, self.param.f1
-        freq = np.linspace(f0, f1, self.param.npun)
+        f0, f1 = self.param.neg_freq, self.param.pos_freq
+        freq = np.linspace(f0, f1, self.param.freq_points)
 
         # Positive peak
         pos_freq, pos_err = 0, 0
