@@ -5,6 +5,8 @@ and it is used to estimate the resonant frequency of sediments.
 This H/V-ARMA calculator allows for computing this spectral ratio 
 from seismographic data saved in SAC format.
 
+![alt text](https://github.com/asleix/hvarma/tree/dev/examples/BI01_p74_win1000.png?raw=true)
+
 ## Features
 
 This software allows to compute:
@@ -18,86 +20,145 @@ Output: Text file with spectral ratio and coherence, and a plot.
 ## Installation guide
 
 This software combines Python and C code to speed up 
-critical sections. Thus, both Python 3 and C languages
-must be installed on the computer. This software will not work
-in Python 2. 
+critical sections. Hence, Python 3 and `gcc` installations 
+are required.
 
-Install python dependencies. From the root of the H/V ARMA folder, use
+Using a virtual environment is recommended if 
+you have multiple projects. Instructions are added below. If 
+you choose not to use it, the following instructions
+might need to replace python and pip with `python3` and `pip3`.
 
-```
-pip3 install -r requirements.txt
-```
-
-Compile C shared library via Makefile. Compile using
-
-```
-make
-```
-
-After these steps, the file obj/gradient.so should be created and
-everything is set up.
-
-In order to recompile C library, use 
-``` make clean ``` first.
-
-
-## Usage
-
-After setting up args.txt file, run
+Install the python module. 
+From the root of the H/V ARMA folder, use
 
 ```
-python3 run.py Z_data_filename.sac N_data_filename.sac E_data_filename.sac
+pip install .
 ```
 
-Output is stored by default in either /output/ or the specified *output_name* parameter in args.txt.
+Now you can use `hvarma` by simply importing the module in your
+python scripts using `import hvarma`. You can also use the
+default scripts such as `run.py`. Feel free to move `run.py`
+to your working directory.
+
+### Using a virtual environment
+
+You should first install `virtualenv` using
+``` 
+pip3 install virtualenv
+```
+Then, to create a virtual environment, use
+``` 
+python3 -m virtualenv venv
+```
+This will create the folder `venv` in your current directory.
+You can place it in your working directory. To activate
+the virtual environment (you will need to do it once per 
+session)
+``` 
+source venv/bin/activate
+```
+Now that your environment is active, notice that your
+python3 is now `python` and your pip is `pip`, as you
+can verify with
+```
+which python; which pip
+```
+
+
+## Using the example scripts
+
+To calculate the horizontal-to-vertical ratio on your data
+using default parameters, use
+
+```
+python run.py Z_data_filename.sac N_data_filename.sac E_data_filename.sac
+```
+
+You can specify the model parameters in a file. In the examples,
+the file `args.txt` specifies different parameters. You can
+indicate the file with the argument `--args=args.txt` when
+running `python run.py`. To get a list with all the 
+possible arguments, please run
+```
+python run.py -h
+```
+
+The output is stored by default in the current directory unless
+specified with the argument `--output_dir=output/`. If an argument
+is specified both in `args` and as a command line argument,
+the latter will override the other values.
+
+We implement an algorithm to find a candidate for a 
+good model order to describe the signal. The script is 
+`find_model_order.py` and can be used in the same
+fashion as `run.py`.
+
+
+## Using the module
+
+The module `hvarma` implements different functions and
+data structures.
+
+- `Data`. Class to read SAC file data.
+- `ArmaParam`. Class to store the model parameters.
+- `run_model`. Run a model specified by an ArmaParam instance on an
+                instance of Data.
+- `plot_hvarma`. Plot your results from run_model in a plot
+                like the ones show in this readme.
+- `find_optimal_order`. Execute a fast algorithm to 
+              test different candidate model orders 
+              and choose the smallest that satisfies 
+              a convergence condition.
 
 
 ## Parameter specification
 
 Parameters are defined in the args.txt file.
-- arma_order: Number of lags "p" of the ARMA(p, p) model.
+- model_order: Number of lags "p" of the ARMA(p, p) model.
 - maxtau: Number of considered lags in the covariances. At most,
   it should be window_size/2.
-- forward_weight: Weight of the forward prediction error in coefficient estimation. Set to 0 or "sigma" to use vertical variance.
-- backward_weight: Weight of the forward prediction error in coefficient estimation. Set to 0 or "sigma" to use horizontal variance.
+- mu: Weight of the forward prediction error in coefficient estimation. Set to 0 or "sigma" to use vertical variance.
+- nu: Weight of the forward prediction error in coefficient estimation. Set to 0 or "sigma" to use horizontal variance.
 - nfir: Number of covariance lags considered in the correlation 
   matrices during the coherence calculation. A relatively small number
   should suffice.
-- ini_freq: Starting point of the frequency interval.
-- fin_freq: Ending point of the frequency interval
-- num_points: Number of points within the frequency interval at which
+- neg_freq: Starting point of the frequency interval.
+- pos_freq: Ending point of the frequency interval
+- freq_points: Number of points within the frequency interval at which
   to compute the spectral ratio.
 - window_size: Number of data points for each time window.
-- window_shift: Number of overlapping points between two consecutive windows.
+- overlap: Number of overlapping points between two consecutive windows.
 - max_windows: Maximum number of windows. Data beyond the max window will be ignored. 
   If max_windows is higher than available data, max_windows will be ignored.
-- freq_conf_interval: Confidence interval for the resonant frequency. 
+- freq_conf: Confidence interval for the resonant frequency. 
   The lower the number, higher the confidence. It is in the interval 0-100. 
-- spectral_conf_interval: Confidence interval of the spectral ratio.
-- output_path: Names will be [stationname]_p[arma_order]_win[number_of_windows].
+- plot_conf: Confidence interval of the spectral ratio.
+- output_dir: Names will be [stationname]_p[arma_order]_win[number_of_windows].
                If output_path is 'default', files will be stored in .../output 
 
 
-The file args.txt should look like
+The default arguments are (as in an `args.txt`)
 
 ```
-arma_order=74
-maxtau=256
-forward_weight=0.5
-backward_weight=0.5
+model_order=74
+maxtau=128
+mu=0.5
+nu=0.5
 nfir=40
-ini_freq=-20
-fin_freq=20
-num_points=512
+neg_freq=-20
+pos_freq=20
+freq_points=1024
 window_size=512
-window_shift=256
+overlap=256
 max_windows=1000
-freq_conf_interval=20
-spectral_conf_interval=50
-output_name=default
+freq_conf=20
+plot_conf=50
+output_dir=default
 ```
 
 ## Program structure
+
+This is old. To be re-written. 
 
 - /run.py. Main script that handles workflow. It is the one to be called.
 - /args.txt. Arguments file. Filename should not be changed.

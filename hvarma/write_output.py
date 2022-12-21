@@ -80,7 +80,7 @@ def plot_hvratio(average_data, param, write_png=True):
     num_windows = average_data.num_windows
     if write_png:
         if param.output_dir == 'default':
-            outfile = 'output/{}_p{}_win{}'.format(station_name, param.model_order, num_windows)
+            outfile = './{}_p{}_win{}'.format(station_name, param.model_order, num_windows)
         else:
             if not param.output_dir.endswith('/'):
                 param.output_dir += '/'
