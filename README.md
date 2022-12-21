@@ -5,11 +5,10 @@ and it is used to estimate the resonant frequency of sediments.
 This H/V-ARMA calculator allows for computing this spectral ratio 
 from seismographic data saved in SAC format.
 
-```
 <p align="center">
   <img width="600" src="https://github.com/asleix/hvarma/tree/dev/examples/BI01_p74_win1000.png" />
 </p>
-```
+
 ## Features
 
 This software allows to compute:
