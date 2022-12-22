@@ -5,7 +5,7 @@ from collections import OrderedDict
 import numpy as np
 from hvarma.read_input import Window
 from hvarma.processing import HVarma, AverageData
-from hvarma.write_output import progress_bar, write_data, pretty_show, plot_order_search
+from hvarma.write_output import progress_bar, write_results, plot_hvratio, plot_order_search
 
 
 def get_data_windows(data, size, overlap):
@@ -39,41 +39,23 @@ def run_model(data, param, plot=False, verbose=True, write=False):
     print('Elapsed:', round((time.time() - beg) / 60, 1), 'min', file=out)
 
     print('Retrieving spectra...', file=out)
-    compute_averages = AverageData(processed_windows, param)
-
-    print('Constructing output...', file=out)
-    num_windows = len(processed_windows)
-    if param.output_dir == 'default':
-        outfile = 'output/{}_p{}_win{}'.format(data.station, param.model_order, num_windows)
-    else:
-        if not param.output_dir.endswith('/'):
-            param.output_dir += '/'
-        outfile = param.output_dir + '{}_p{}_win{}'.format(data.station, param.model_order, num_windows)
-    err = param.plot_conf / 2
+    results = AverageData(processed_windows, param)
 
     if write:
-        write_data(np.linspace(param.neg_freq, param.pos_freq, param.freq_points),
-                   compute_averages.get_spectrum_percentile(50),
-                   compute_averages.get_spectrum_percentile(50 - err),
-                   compute_averages.get_spectrum_percentile(50 + err),
-                   compute_averages.get_coherence_percentile(50), outfile + '.txt')
-
-    pos_freq, pos_err, neg_freq, neg_err = compute_averages.get_frequency(param.freq_conf)
+        print('Constructing output...', file=out)
+        write_results(data, param, results)
 
     if plot:
-        pretty_show(param.neg_freq, param.pos_freq, param.freq_points, compute_averages.get_spectrum_percentile(50),
-                    compute_averages.get_spectrum_percentile(50 - err),
-                    compute_averages.get_spectrum_percentile(50 + err),
-                    compute_averages.get_coherence_percentile(50), data.station,
-                    pos_freq, pos_err, neg_freq, neg_err, filename=outfile + '.png')
+        plot_hvratio(param, results, write=True)
 
+    pos_freq, pos_err, neg_freq, neg_err = results.get_frequency(param.freq_conf)
     print('Estimated positive resonance frequency: {:.6f} Hz, error: {:.6f} Hz'.format(pos_freq, pos_err), file=out)
     print('Estimated negative resonance frequency: {:.6f} Hz, error: {:.6f} Hz'.format(neg_freq, neg_err), file=out)
 
     if not verbose:
         out.close()
 
-    return compute_averages
+    return results
 
 
 def get_difference(cur, prev):

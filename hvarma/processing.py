@@ -1,3 +1,4 @@
+from functools import lru_cache
 import numpy as np
 from hvarma.compute import compute_crosscovariance, compute_autocovariance,\
                        compute_equations, transfer_function, compute_coherence
@@ -111,6 +112,7 @@ class AverageData:
         self.coherence = np.vstack(coh)
         self.AIC = np.array(aic)
 
+    @lru_cache(maxsize=10)
     def get_frequency(self, conf):
         """ Get resonance frequency, corresponding to the maximum peak """
         f0, f1 = self.param.neg_freq, self.param.pos_freq

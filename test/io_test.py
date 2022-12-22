@@ -67,7 +67,7 @@ class ArmaParamTest(unittest.TestCase):
         self.assertEqual(param.max_windows, 100)
         self.assertEqual(param.freq_conf, 20)
         self.assertEqual(param.plot_conf, 50)
-        self.assertEqual(param.output_dir, 'default')
+        self.assertEqual(param.output_dir, '.')
 
     def test_update(self):
         from hvarma.read_input import ArmaParam
