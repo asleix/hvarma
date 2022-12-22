@@ -75,32 +75,38 @@ def pretty_show(f0, f1, npun, spectrum, low_err, upp_err, coherence, stat_name,
     return fig
 
 
-def plot_hvratio(average_data, param, write_png=True):
+def generate_filename(output_dir, station_name, model_order, num_windows):
+    if not os.path.exists(output_dir):
+        os.mkdir(output_dir)
+    filename = '{}_p{}_win{}'.format(station_name, model_order, num_windows)
+    outfile = os.path.join(output_dir, filename)
+    return outfile
+
+
+def plot_hvratio(param, results, format='png', write=True):
     """ Display the results of an hvarma model calculation.
         Draw H/V ratio spectrum. It's a scatter plot H/V amplitude vs frequency.
         Display the spectrum along with upper and lower error bounds.
         Also display the estimated frequency of the peaks, both positive and negative.
     """
-    station_name = average_data.station
-    num_windows = average_data.num_windows
-    if write_png:
-        if param.output_dir == 'default':
-            outfile = './{}_p{}_win{}'.format(station_name, param.model_order, num_windows)
-        else:
-            if not param.output_dir.endswith('/'):
-                param.output_dir += '/'
-            outfile = param.output_dir + '{}_p{}_win{}'.format(station_name, param.model_order, num_windows)
-        outfile += '.png'
+    assert type(format) is str
+    station_name = results.station
+    num_windows = results.num_windows
+    model_order = param.model_order
+    if write:
+        outfile = generate_filename(param.output_dir, station_name, model_order, num_windows)
+        outfile += format
     else:
         outfile = None
 
     err = param.plot_conf/2
-    pos_freq, pos_err, neg_freq, neg_err = average_data.get_frequency(param.freq_conf)
+    pos_freq, pos_err, neg_freq, neg_err = results.get_frequency(param.freq_conf)
 
-    return pretty_show(param.neg_freq, param.pos_freq, param.freq_points, average_data.get_spectrum_percentile(50),
-                       average_data.get_spectrum_percentile(50-err),
-                       average_data.get_spectrum_percentile(50+err),
-                       average_data.get_coherence_percentile(50), station_name,
+    return pretty_show(param.neg_freq, param.pos_freq, param.freq_points,
+                       results.get_spectrum_percentile(50),
+                       results.get_spectrum_percentile(50 - err),
+                       results.get_spectrum_percentile(50 + err),
+                       results.get_coherence_percentile(50), station_name,
                        pos_freq, pos_err, neg_freq, neg_err, filename=outfile)
 
 
@@ -110,6 +116,18 @@ def write_data(freqs, spectrum, low_err, up_err, coherence, filename='out.txt'):
         print('Frequency', 'H/V', 'Low_err', 'Upp_err', 'Coherence', file=f, sep=' ')
         for freq, spec, low, up, coh in zip(freqs, spectrum, low_err, up_err, coherence):
             print(freq, spec, low, up, coh, file=f, sep=' ')
+
+
+def write_results(data, param, results):
+    outfile = generate_filename(param.output_dir, data.station,
+                                param.model_order, results.num_windows)
+    err = param.plot_conf / 2
+
+    write_data(np.linspace(param.neg_freq, param.pos_freq, param.freq_points),
+               results.get_spectrum_percentile(50),
+               results.get_spectrum_percentile(50 - err),
+               results.get_spectrum_percentile(50 + err),
+               results.get_coherence_percentile(50), outfile + '.txt')
 
 
 def plot_order_search(orders, found_p, stat_name, tol=0.1, output_dir='.'):

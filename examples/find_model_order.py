@@ -12,7 +12,6 @@ def select_parameters_from_args(args):
 
 
 def main(args):
-
     data = Data(Z_fname=args.Z_fname,
                 N_fname=args.E_fname,
                 E_fname=args.N_fname)
@@ -25,9 +24,10 @@ def main(args):
     })
     args_dict = select_parameters_from_args(args)
     param = param.update(args_dict)
-    print(param.get_params())
-    print('Data read correctly')
-    find_optimal_order(data, param, 0.05, start_order=4, output_dir='.', verbose=True, plot=True)
+    if not args.silent:
+        print('Data read correctly')
+    find_optimal_order(data, param, 0.05, start_order=4, output_dir='.',
+                       verbose=not args.silent, plot=True)
 
 
 if __name__ == '__main__':

@@ -27,7 +27,7 @@ class RunModelTest(unittest.TestCase):
         self.setCb = [0.81721816, 0.8062195,  0.78768426, 0.77677296, 0.77333868, 0.76196565,
                       0.75378387, 0.72431371, 0.70199212, 0.67628692]
 
-        fig = plot_hvratio(self.average_data, self.param, write_png=False)
+        fig = plot_hvratio(self.param, self.average_data, write=False)
         plt_data = fig.axes[0].get_lines()[0].get_data()
         assert_array_almost_equal(plt_data[0][:10], self.setCa)
         assert_array_almost_equal(plt_data[1][:10], self.setCb)

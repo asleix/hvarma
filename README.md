@@ -153,7 +153,7 @@ overlap=256
 max_windows=1000
 freq_conf=20
 plot_conf=50
-output_dir=default
+output_dir=.
 ```
 
 ## Program structure
