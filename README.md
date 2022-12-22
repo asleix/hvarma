@@ -1,3 +1,5 @@
+[![Python package](https://github.com/asleix/hvarma/actions/workflows/python-package.yml/badge.svg)](https://github.com/asleix/hvarma/actions/workflows/python-package.yml)
+
 # H/V-ARMA calculator
 
 The H/V method is the horizontal to vertical spectral ratio 
