@@ -92,8 +92,9 @@ def plot_hvratio(param, results, format='png', write=True):
     assert type(format) is str
     station_name = results.station
     num_windows = results.num_windows
+    model_order = param.model_order
     if write:
-        outfile = generate_filename(param.output_dir, station_name, num_windows)
+        outfile = generate_filename(param.output_dir, station_name, model_order, num_windows)
         outfile += format
     else:
         outfile = None
