@@ -1,33 +1,37 @@
 import argparse
-from hvarma import Data, ArmaParam, find_optimal_order
+from hvarma import Data, ArmaParam, find_optimal_order, plot_order_search
 
 
 def select_parameters_from_args(args):
     args_dict = {}
     for arg in vars(args):
-        if arg in ArmaParam.get_param_list():
+        if arg in ArmaParam.get_fields_list():
             if getattr(args, arg) is not None:
                 args_dict[arg] = getattr(args, arg)
     return args_dict
 
 
 def main(args):
-    data = Data(Z_fname=args.Z_fname,
-                N_fname=args.E_fname,
-                E_fname=args.N_fname)
-    param = ArmaParam(args.args).update({
-        'freq_points': 2000,
-        'neg_freq':    -10,
-        'pos_freq':    10,
-        'max_windows': 1000,
-        'window_size': 512,
-    })
+    data = Data.from_sac(Z_fname=args.Z_fname,
+                         N_fname=args.E_fname,
+                         E_fname=args.N_fname)
+    if args.args is not None:
+        param = ArmaParam.from_file(args.args)
+    else:
+        param = ArmaParam.from_dict({
+            'freq_points': 2000,
+            'maxtau':  64,
+            'neg_freq':    -10,
+            'pos_freq':    10,
+            'max_windows': 10,
+            'window_size': 512,
+        })
     args_dict = select_parameters_from_args(args)
     param = param.update(args_dict)
     if not args.silent:
         print('Data read correctly')
-    find_optimal_order(data, param, 0.05, start_order=4, output_dir='.',
-                       verbose=not args.silent, plot=True)
+    results = find_optimal_order(data, param, 0.05, start_order=4, verbose=not args.silent)
+    plot_order_search(results, param.output_dir)
 
 
 if __name__ == '__main__':
@@ -40,7 +44,7 @@ if __name__ == '__main__':
     parser.add_argument('--max_windows', type=int, help="Maximum number of windows to explore within data.")
     parser.add_argument('--window_size', type=int, help="Size of each individual window.")
     parser.add_argument('--overlap', type=int, help="Overlap between individual windows.")
-    parser.add_argument('--args', type=str, help="File with all the default arguments.", default='default')
+    parser.add_argument('--args', type=str, help="File with all the default arguments.", default=None)
     parser.add_argument('--freq_points', type=int, help="Number of frequency points to "
                                                         "calculate between neg_freq and pos_freq")
     parser.add_argument('--silent', help="No output to stdout", action='store_false', default=False)

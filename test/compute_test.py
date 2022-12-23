@@ -13,12 +13,11 @@ class CovarianceTest(unittest.TestCase):
         self.Z_fn = 'data/B001_Z.sac'
         self.N_fn = 'data/B001_N.sac'
         self.E_fn = 'data/B001_E.sac'
-        self.data = Data(Z_fname=self.Z_fn, 
-                         N_fname=self.N_fn, 
-                         E_fname=self.E_fn)
+        self.data = Data.from_sac(Z_fname=self.Z_fn,
+                                  N_fname=self.N_fn,
+                                  E_fname=self.E_fn)
 
     def test_crosscovariance1(self):
-        from hvarma.read_input import Window
         from hvarma.compute import compute_crosscovariance
         self.set1 = ([ 1.73828596e+08+6.60849194e+07j,  6.32054345e+07+2.07464694e+08j,
                      -2.54828589e+08+3.21324056e+08j, -1.31609498e+08+3.89973541e+07j,
@@ -31,7 +30,7 @@ class CovarianceTest(unittest.TestCase):
 
         self.set1 = (np.array(self.set1[0]), np.array(self.set1[1]))
 
-        win = Window(self.data, 10, 20)
+        win = self.data.make_window(10, 20)
         cov_v_zx, cov_zx_v = compute_crosscovariance(win.dataE, 
                                                     win.dataN, 
                                                     win.dataZ, 
@@ -41,7 +40,6 @@ class CovarianceTest(unittest.TestCase):
         assert_array_almost_equal(self.set1[1]/1e8, cov_zx_v/1e8)
 
     def test_crosscovariance2(self):
-        from hvarma.read_input import Window
         from hvarma.compute import compute_crosscovariance
         self.set2 = ([ 7.68839918e+08+3.20875624e+08j,  9.39971753e+07+3.08121405e+08j,
                      -1.38147329e+08+2.80586218e+08j,  5.16377001e+08+3.15477898e+08j,
@@ -56,7 +54,7 @@ class CovarianceTest(unittest.TestCase):
         
         self.set2 = (np.array(self.set2[0]), np.array(self.set2[1]))
 
-        win = Window(self.data, 10, 50)
+        win = self.data.make_window(10, 50)
         cov_v_zx, cov_zx_v = compute_crosscovariance(win.dataE, 
                                                     win.dataN, 
                                                     win.dataZ, 
@@ -66,7 +64,6 @@ class CovarianceTest(unittest.TestCase):
         assert_array_almost_equal(self.set2[1]/1e8, cov_zx_v/1e8)
 
     def test_autocovariance1(self):
-        from hvarma.read_input import Window
         from hvarma.compute import compute_autocovariance
         self.set3 = ([ 2.87984429e+09+0.00000000e+00j,  1.85655767e+09+4.10987990e+08j,
                       7.06468559e+08+8.27135659e+08j,  2.42983625e+08+1.07233248e+09j,
@@ -77,7 +74,7 @@ class CovarianceTest(unittest.TestCase):
 
         self.set3 = (np.array(self.set3[0]), np.array(self.set3[1]))
 
-        win = Window(self.data, 10, 20)
+        win = self.data.make_window(10, 20)
         cov_x, cov_v = compute_autocovariance(win.dataE, 
                                               win.dataN, 
                                               win.dataZ, 
@@ -87,7 +84,6 @@ class CovarianceTest(unittest.TestCase):
         assert_array_almost_equal(self.set3[1]/1e8, cov_v/1e8)
 
     def test_autocovariance2(self):
-        from hvarma.read_input import Window
         from hvarma.compute import compute_autocovariance
         self.set4 = ([ 7.28934951e+09+0.00000000e+00j,  3.26854860e+09+5.90404001e+08j,
                      -3.97073231e+07+1.76561521e+09j, -6.26044627e+07+2.40595417e+09j,
@@ -100,7 +96,7 @@ class CovarianceTest(unittest.TestCase):
         
         self.set4 = (np.array(self.set4[0]), np.array(self.set4[1]))
 
-        win = Window(self.data, 100, 50)
+        win = self.data.make_window(100, 50)
         cov_x, cov_v = compute_autocovariance(win.dataE, 
                                                win.dataN, 
                                                win.dataZ, 
@@ -117,12 +113,11 @@ class ModelEquationsTest(unittest.TestCase):
         self.Z_fn = 'data/B001_Z.sac'
         self.N_fn = 'data/B001_N.sac'
         self.E_fn = 'data/B001_E.sac'
-        self.data = Data(Z_fname=self.Z_fn, 
-                         N_fname=self.N_fn, 
-                         E_fname=self.E_fn)
+        self.data = Data.from_sac(Z_fname=self.Z_fn,
+                                  N_fname=self.N_fn,
+                                  E_fname=self.E_fn)
 
     def test_equation_solutions(self):
-        from hvarma.read_input import Window
         from hvarma.compute import compute_equations
         self.set1_matrix = np.array([  5.13972248e+19,  3.10707417e+19,  2.11507709e+19, -1.98936107e+18,
                              -1.08894509e+19, -2.35618707e+18, -1.97935396e+18, -4.45278216e+18,
@@ -132,7 +127,7 @@ class ModelEquationsTest(unittest.TestCase):
         self.set1_indep = np.array([-3.10015175e+19, -2.10644987e+19, -1.53146448e+19,  1.09304118e+19,
                           2.45233710e+18,  2.05290316e+18,  2.07021153e+18, -3.03187250e+18,
                          -2.91581009e+18, -5.90339381e+18, -3.84857288e+18])
-        win = Window(self.data, 10, 20)
+        win = self.data.make_window(10, 100)
         mat, indep = compute_equations(win.dataE, win.dataN, win.dataZ, 0.5, 0.5, 100, 3, 50)
 
         assert_array_almost_equal(self.set1_matrix/1e20, mat.ravel()[:20]/1e20, decimal=8)
@@ -142,22 +137,22 @@ class ModelEquationsTest(unittest.TestCase):
 class HVArmaTest(unittest.TestCase):
 
     def setUp(self):
-        from hvarma.read_input import ArmaParam, Data, Window
+        from hvarma.read_input import ArmaParam, Data
         from hvarma.processing import HVarma
         self.Z_fn = 'data/B001_Z.sac'
         self.N_fn = 'data/B001_N.sac'
         self.E_fn = 'data/B001_E.sac'
         self.filename = 'test/resources/args1.txt'
 
-        self.data = Data(Z_fname=self.Z_fn, 
-                         N_fname=self.N_fn, 
-                         E_fname=self.E_fn)
+        self.data = Data.from_sac(Z_fname=self.Z_fn,
+                                  N_fname=self.N_fn,
+                                  E_fname=self.E_fn)
 
-        self.param = ArmaParam(arg=self.filename)
-        self.window = Window(self.data, 10, self.param.window_size)
+        self.param = ArmaParam.from_file(self.filename)
+        self.window = self.data.make_window(10, self.param.window_size)
         self.pwindow = HVarma(self.window, self.param)
 
-        self.pwindow.solve_arma() # This should be improved!
+        self.pwindow.solve_arma()  # This should be improved!
         self.pwindow.get_coherence()
 
     def test_transfer_function(self):
@@ -203,7 +198,7 @@ class AverageDataTest(unittest.TestCase):
 
     def setUp(self):
         from hvarma.write_output import progress_bar
-        from hvarma.read_input import ArmaParam, Data, Window
+        from hvarma.read_input import ArmaParam, Data
         from hvarma.processing import HVarma, AverageData
         
         def get_data_windows(data, size, overlap):
@@ -213,34 +208,33 @@ class AverageDataTest(unittest.TestCase):
                 raise Exception('Window exceeds available data')
 
             for start in range(0, data.size-size+1, size-overlap):
-                yield Window(data, start, size)
+                yield data.make_window(start, size)
 
         self.Z_fn = 'data/B001_Z.sac'
         self.N_fn = 'data/B001_N.sac'
         self.E_fn = 'data/B001_E.sac'
         self.filename = 'test/resources/args1.txt'
-        self.data = Data(Z_fname=self.Z_fn, 
-                         N_fname=self.N_fn, 
-                         E_fname=self.E_fn)
+        self.data = Data.from_sac(Z_fname=self.Z_fn,
+                                  N_fname=self.N_fn,
+                                  E_fname=self.E_fn)
 
-        param = ArmaParam(arg=self.filename)
+        param = ArmaParam.from_file(self.filename)
+
+        print(param)
 
         processed_windows = []
         maxwin = 100
         param.max_windows = maxwin
-        progress = progress_bar(self.data.size, param.window_size, param.overlap, maxwin)
         f = io.StringIO()
-        with contextlib.redirect_stdout(f): # catch stdout
-            for idx, data_window in enumerate(get_data_windows(self.data, param.window_size, param.overlap)):
-                next(progress)
-                model = HVarma(data_window, param)
-                model.solve_arma()
-                model.get_coherence()
-
-                processed_windows.append(model)
-                if idx+1 == maxwin:  # Limited windows version
-                    break
-
+        progress = progress_bar(self.data.size, param.window_size, param.overlap, maxwin, file=f)
+        for idx, data_window in enumerate(get_data_windows(self.data, param.window_size, param.overlap)):
+            next(progress)
+            model = HVarma(data_window, param)
+            model.solve_arma()
+            model.get_coherence()
+            processed_windows.append(model)
+            if idx+1 == maxwin:  # Limited windows version
+                break
         self.compute_averages = AverageData(processed_windows, param)
 
     def test_spectrum1(self):
@@ -250,7 +244,6 @@ class AverageDataTest(unittest.TestCase):
         spectrum = self.compute_averages.get_spectrum_percentile(50)
 
         assert_array_almost_equal(self.set1, spectrum[:10])
-
 
     def test_spectrum2(self):
         self.set2 = [0.52060565, 0.51945786, 0.50757951, 0.5322541,  0.51461029, 0.50894714,
@@ -287,3 +280,4 @@ class AverageDataTest(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)
+
