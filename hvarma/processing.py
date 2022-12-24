@@ -1,6 +1,6 @@
 from functools import lru_cache
 from dataclasses import dataclass
-from collections.abc import Mapping
+from typing import Mapping
 import numpy as np
 from .compute import compute_crosscovariance, compute_autocovariance,\
                        compute_equations, transfer_function, compute_coherence
