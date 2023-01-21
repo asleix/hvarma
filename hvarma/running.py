@@ -1,3 +1,9 @@
+"""
+Copyright (c) 2022, Spanish National Research Council (CSIC)
+
+Function definitions for guiding the computation steps.
+"""
+
 import sys
 import os
 import time

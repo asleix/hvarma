@@ -2,12 +2,22 @@
 
 # H/V-ARMA calculator
 
-The H/V method is the horizontal to vertical spectral ratio 
-and it is used to estimate the resonant frequency of sediments.
-This H/V-ARMA calculator allows for computing this spectral ratio 
-from seismographic data saved in SAC format.
+The horizontal to vertical (H/V) spectral ratio is used to estimate
+the resonant frequency of sediments. 
 
-![Alt text](./examples/BI01_p74_win1000.png?raw=true "Title")
+HV-ARMA does so by 
+estimating the transfer function in a surface layer for
+three-dimensional micro-tremor seismogram data.
+
+This HV-ARMA module and the provided example scripts allow
+to find the resonant frequency in micro-tremor seismograms
+for a given HV-ARMA model order.
+
+![Alt text](./examples/b001_p42.png?raw=true "Resonant frequencies")
+
+In addition, we provide 
+guidance for finding the best model order for given input 
+data.
 
 ## Features
 
@@ -15,9 +25,11 @@ This software allows to compute:
 - Spectral ratio, with lower and upper error bounds.
 - Estimated resonant frequency.
 - Signal coherence.
+- Optimal model order.
 
-Input: 3 SAC data files and a parameters file, "args.txt".
-Output: Text file with spectral ratio and coherence, and a plot.
+The supported data format by default are SAC binaries (Seismic Analysis 
+Code). However, the 
+module API accepts any float-valued numpy array.
 
 ## Installation guide
 
@@ -158,49 +170,7 @@ plot_conf=50
 output_dir=.
 ```
 
-## Program structure
 
-This is old. To be re-written. 
-
-- /run.py. Main script that handles workflow. It is the one to be called.
-- /args.txt. Arguments file. Filename should not be changed.
-- /include/read_input.py. Contains data and parameter reading functions.
-- /include/write_output.py. Display and saving functions, including 
-                           a progressbar, plot and ascii text saving.
-- /include/processing.py. Handle window processing and all-window averaging.
-- /include/compute.py. Hard-working formula functions.
-- /src/gradient.c. Most expensive computation, the optimality conditions matrix. 
-- /bin/gradient.so. Shared library, created at C compile time.
-- /output/. Default output directory. Output is stored here if parameter output_path=default.
-
-We also provide additional data files and output as an example computation.
-They can be found in data and output folders.
-
-File tree:
-```
-.
-├── Makefile
-├── README.md
-├── args.txt
-├── data
-│   ├── B001_E.sac
-│   ├── B001_N.sac
-│   └── B001_Z.sac
-├── include
-│   ├── compute.py
-│   ├── processing.py
-│   ├── read_input.py
-│   └── write_output.py
-├── obj
-│   └── gradient.so
-├── output
-│   ├── out.png
-│   └── out.txt
-├── requirements.txt
-├── run.py
-├── src
-│   └── gradient.c
-```
 
 
 

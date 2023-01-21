@@ -1,3 +1,15 @@
+"""
+Copyright (c) 2022, Spanish National Research Council (CSIC)
+
+Script to run HVarma of a specific order on input data.
+
+HVarma estimates the transfer function in a surface layer for
+three-dimensional micro-tremor seismogram data.
+
+Usage example:
+    python run.py Z_data.sac N_data.sac E_data.sac --model_order=42
+"""
+
 import argparse
 from hvarma import Data, ArmaParam, run_model, write_results, plot_hvratio
 

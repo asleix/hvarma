@@ -1,3 +1,9 @@
+"""
+Copyright (c) 2022, Spanish National Research Council (CSIC)
+
+Function definitions for text and image output.
+"""
+
 import os, sys
 import time
 import numpy as np

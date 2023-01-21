@@ -1,3 +1,12 @@
+"""
+Copyright (c) 2022, Spanish National Research Council (CSIC)
+
+Data classes definitions.
+
+ArmaParam stores the parameters of the hvarma model.
+Data loads and stores the three-dimensional micro-tremor signal.
+"""
+
 from dataclasses import dataclass, fields, field
 from collections.abc import Sequence
 import numpy as np

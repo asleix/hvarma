@@ -1,3 +1,9 @@
+"""
+Copyright (c) 2022, Spanish National Research Council (CSIC)
+
+Function definitions for signal magnitudes computations.
+"""
+
 import numpy as np
 import ctypes
 from numpy.ctypeslib import ndpointer

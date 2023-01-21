@@ -1,6 +1,7 @@
 /**
 Copyright (c) 2022, Spanish National Research Council (CSIC)
-This source code is subject to the terms of the BSD 3 Clause License.
+This source code is subject to the terms of the
+GNU Lesser General Public License.
 
 Estimation of the transfer function in a surface layer following
 Nakamura's method.

@@ -1,3 +1,9 @@
+"""
+Copyright (c) 2022, Spanish National Research Council (CSIC)
+
+Class definitions for processing and results objects.
+"""
+
 from functools import lru_cache
 from dataclasses import dataclass
 from typing import Mapping
