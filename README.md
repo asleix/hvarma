@@ -27,7 +27,7 @@ This software allows to compute:
 - Signal coherence.
 - Optimal model order.
 
-The supported data format by default are SAC binaries (Seismic Analysis 
+The supported data format by default are [SAC](https://ds.iris.edu/ds/support/faq/17/sac-file-format/) binaries (Seismic Analysis 
 Code). However, the 
 module API accepts any float-valued numpy array.
 
