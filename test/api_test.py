@@ -8,7 +8,7 @@ class RunModelTest(unittest.TestCase):
     def setUp(self):
         from hvarma import Data, ArmaParam, run_model
         self.param = ArmaParam.from_file('test/resources/args1.txt')
-        self.data = Data.from_sac('data/B001_Z.sac', 'data/B001_N.sac', 'data/B001_E.sac')
+        self.data = Data.from_sac('test/resources/B001_Z.sac', 'test/resources/B001_N.sac', 'test/resources/B001_E.sac')
         self.average_data = run_model(self.data, self.param, plot=False, verbose=False, write=False)
 
     def test_num_windows(self):
@@ -43,7 +43,7 @@ class FindModelOrderTest(unittest.TestCase):
     def setUp(self):
         from hvarma import Data, ArmaParam
         self.param = ArmaParam.from_file('test/resources/args2.txt')
-        self.data = Data.from_sac('data/B001_Z.sac', 'data/B001_N.sac', 'data/B001_E.sac')
+        self.data = Data.from_sac('test/resources/B001_Z.sac', 'test/resources/B001_N.sac', 'test/resources/B001_E.sac')
 
     def test_convergence(self):
         from hvarma.running import is_converged
@@ -62,7 +62,7 @@ class BinarySearchTest(unittest.TestCase):
 
     def setUp(self):
         from hvarma import Data, ArmaParam
-        self.data = Data.from_sac('data/B001_Z.sac', 'data/B001_N.sac', 'data/B001_E.sac')
+        self.data = Data.from_sac('test/resources/B001_Z.sac', 'test/resources/B001_N.sac', 'test/resources/B001_E.sac')
         self.param = ArmaParam.from_dict({
             'model_order': 10,
             'maxtau': 64,

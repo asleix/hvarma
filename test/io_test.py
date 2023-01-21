@@ -6,9 +6,9 @@ import contextlib
 class DataTest(unittest.TestCase):
 
     def setUp(self):
-        self.Z_fn = 'data/B001_Z.sac'
-        self.N_fn = 'data/B001_N.sac'
-        self.E_fn = 'data/B001_E.sac'
+        self.Z_fn = 'test/resources/B001_Z.sac'
+        self.N_fn = 'test/resources/B001_N.sac'
+        self.E_fn = 'test/resources/B001_E.sac'
 
     def test_input1(self):
         from hvarma.read_input import Data

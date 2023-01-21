@@ -10,9 +10,9 @@ class CovarianceTest(unittest.TestCase):
 
     def setUp(self):
         from hvarma.read_input import Data
-        self.Z_fn = 'data/B001_Z.sac'
-        self.N_fn = 'data/B001_N.sac'
-        self.E_fn = 'data/B001_E.sac'
+        self.Z_fn = 'test/resources/B001_Z.sac'
+        self.N_fn = 'test/resources/B001_N.sac'
+        self.E_fn = 'test/resources/B001_E.sac'
         self.data = Data.from_sac(Z_fname=self.Z_fn,
                                   N_fname=self.N_fn,
                                   E_fname=self.E_fn)
@@ -110,9 +110,9 @@ class ModelEquationsTest(unittest.TestCase):
 
     def setUp(self):
         from hvarma.read_input import Data
-        self.Z_fn = 'data/B001_Z.sac'
-        self.N_fn = 'data/B001_N.sac'
-        self.E_fn = 'data/B001_E.sac'
+        self.Z_fn = 'test/resources/B001_Z.sac'
+        self.N_fn = 'test/resources/B001_N.sac'
+        self.E_fn = 'test/resources/B001_E.sac'
         self.data = Data.from_sac(Z_fname=self.Z_fn,
                                   N_fname=self.N_fn,
                                   E_fname=self.E_fn)
@@ -139,9 +139,9 @@ class HVArmaTest(unittest.TestCase):
     def setUp(self):
         from hvarma.read_input import ArmaParam, Data
         from hvarma.processing import HVarma
-        self.Z_fn = 'data/B001_Z.sac'
-        self.N_fn = 'data/B001_N.sac'
-        self.E_fn = 'data/B001_E.sac'
+        self.Z_fn = 'test/resources/B001_Z.sac'
+        self.N_fn = 'test/resources/B001_N.sac'
+        self.E_fn = 'test/resources/B001_E.sac'
         self.filename = 'test/resources/args1.txt'
 
         self.data = Data.from_sac(Z_fname=self.Z_fn,
@@ -210,9 +210,9 @@ class AverageDataTest(unittest.TestCase):
             for start in range(0, data.size-size+1, size-overlap):
                 yield data.make_window(start, size)
 
-        self.Z_fn = 'data/B001_Z.sac'
-        self.N_fn = 'data/B001_N.sac'
-        self.E_fn = 'data/B001_E.sac'
+        self.Z_fn = 'test/resources/B001_Z.sac'
+        self.N_fn = 'test/resources/B001_N.sac'
+        self.E_fn = 'test/resources/B001_E.sac'
         self.filename = 'test/resources/args1.txt'
         self.data = Data.from_sac(Z_fname=self.Z_fn,
                                   N_fname=self.N_fn,
