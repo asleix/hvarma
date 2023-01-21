@@ -1,89 +1,44 @@
+"""
+Copyright (c) 2022, Spanish National Research Council (CSIC)
+
+Data classes definitions.
+
+ArmaParam stores the parameters of the hvarma model.
+Data loads and stores the three-dimensional micro-tremor signal.
+"""
+
+from dataclasses import dataclass, fields, field
+from collections.abc import Sequence
 import numpy as np
-from obspy import read
 import os
 
-DEFAULT_PARAMS = {
-    'model_order':       int,
-    'maxtau':            int,
-    'mu':                float,
-    'nu':                float,
-    'nfir':              int,
-    'neg_freq':          float,
-    'pos_freq':          float,
-    'freq_points':       int,
-    'window_size':       int,
-    'overlap':           int,
-    'max_windows':       int,
-    'freq_conf':         float,
-    'plot_conf':         float,
-    'output_dir':        str,
-}
 
-
+@dataclass
 class ArmaParam:
     """ Parameters for computation """
-    model_order: int
-    maxtau:      int
-    mu:          float
-    nu:          float
-    nfir:        int
-    neg_freq:    float
-    pos_freq:    float
-    freq_points: int
-    window_size: int
-    overlap:     int
-    max_windows: int
-    freq_conf:   float
-    plot_conf:   float
-    output_dir:  str
+    model_order: int = 30
+    maxtau:      int = 128
+    mu:          float = 0.5
+    nu:          float = 0.5
+    nfir:        int = 40
+    neg_freq:    float = -20
+    pos_freq:    float = 20
+    freq_points: int = 1024
+    window_size: int = 512
+    overlap:     int = 256
+    max_windows: int = 1000
+    freq_conf:   float = 20
+    plot_conf:   float = 50
+    output_dir:  str = '.'
 
-    def __init__(self, arg='default'):
-        assert isinstance(arg, str) or isinstance(arg, dict), "Invalid argument"
-        filename = arg if isinstance(arg, str) else 'default'
-        default_filename = os.path.dirname(os.path.abspath(__file__)) + \
-                           os.path.sep + 'default_args.txt'
-        default_values = self.read_params(default_filename)
+    def __post_init__(self):
+        """ Match the input values type during initialization. """
+        for arg in fields(self):
+            value = getattr(self, arg.name)
+            if not isinstance(value, arg.type):
+                setattr(self, arg.name, arg.type(value))
 
-        if filename == 'default':
-            filename = default_filename
-        self.filename = filename
-
-        # Overwrite default values if provided in argument
-        values = self.read_params(filename)
-        default_values.update(values)
-        if isinstance(arg, dict):
-            default_values.update(arg)
-        values = default_values
-
-        # Set class attributes from dictionary
-        for param, ptype in DEFAULT_PARAMS.items():
-            values[param] = ptype(values[param])
-            setattr(self, param, values[param])
-
-        self.dict_values = values
         self.assert_parameters()
-
-    @staticmethod
-    def get_param_list():
-        return list(DEFAULT_PARAMS.keys())
-
-    def read_params(self, filename):
-        """ Read arguments from file. """
-        values = {}
-        parameter_list = ArmaParam.get_param_list()
-        with open(filename, 'r') as f:
-            for line in f:
-                line = line.replace(' ', '')
-                line = line.replace('\n', '')
-                try:
-                    parameter, value = line.split('=')
-                except ValueError:
-                    raise SyntaxError('Wrong syntax. Use: parameter=value')
-                if parameter not in parameter_list:
-                    raise AttributeError('Parameter ' + parameter + ' unknown.')
-                values[parameter] = value
-
-        return values
 
     def assert_parameters(self):
         """ Perform some assertions to ensure parameters are consistent. """
@@ -93,93 +48,115 @@ class ArmaParam:
         assert self.neg_freq < self.pos_freq
         assert self.nfir <= self.maxtau
 
-    def get_params(self):
-        return self.dict_values.copy()
+    @classmethod
+    def from_dict(cls, args_dict):
+        assert type(args_dict) is dict, \
+            f"args_dict is not a dict but {type(args_dict)}"
+
+        defaults = ArmaParam.get_fields_list()
+        for arg in args_dict:
+            if arg not in defaults:
+                raise AttributeError(f'Parameter {arg} is unknown.')
+
+        return cls(**args_dict)
+
+    @classmethod
+    def from_file(cls, args_file):
+        assert os.path.exists(args_file), "Arguments file does not exist"
+        default_values = ArmaParam.read_params(args_file)
+        return cls.from_dict(default_values)
+
+    @classmethod
+    def get_fields_list(cls):
+        return [arg.name for arg in fields(cls)]
+
+    @staticmethod
+    def read_params(filename):
+        """ Read arguments from file. """
+        values = {}
+        with open(filename, 'r') as file:
+            for line in file:
+                try:
+                    parameter, value = line.rstrip().split('=')
+                except ValueError:
+                    raise SyntaxError(f'Wrong syntax in {filename}. '
+                                      f'Use: parameter=value')
+                values[parameter] = value
+
+        return values
+
+    def get_dict(self):
+        from dataclasses import asdict
+        return asdict(self)
 
     def __copy__(self):
-        return ArmaParam(self.get_params())
+        return ArmaParam(self.get_dict())
 
     def copy(self):
         from copy import copy
         return copy(self)
 
-    def update(self, arg):
-        assert type(arg) is dict, "Usage: arg={'param':value}"
-        dict_values = self.get_params()
-        assert all([key in dict_values for key in arg]), "Wrong parameter"
+    def update(self, args):
+        assert type(args) is dict, "Usage: arg={'param':value}"
+        dict_values = self.get_dict()
 
-        for key, value in arg.items():
+        for key, value in args.items():
             dict_values[key] = value
 
-        return ArmaParam(dict_values)
+        return ArmaParam.from_dict(dict_values)
 
 
+@dataclass
 class Data:
-    """ Main class for data storage """
-    def __init__(self, E_fname=None, N_fname=None, Z_fname=None):
-        """ Initialize class variables """
-        self.dataE = None
-        self.dataN = None
-        self.dataZ = None
-        self.size = None
-        self.sampling_rate = None
-        self.starttime = None
-        self.endtime = None
-        self.station = None
+    dataZ: Sequence
+    dataN: Sequence
+    dataE: Sequence
+    sampling_rate: float
+    station: str
+    copy_data: bool = field(default=True, repr=False)
 
-        # SAC initialization
-        assertion = [E_fname is not None, N_fname is not None, Z_fname is not None]
-        if all(assertion):
-            self.read_sac(E_fname, N_fname, Z_fname)
-        elif any(assertion):
-            raise Exception('Bad data initialization, missing arguments')
+    def __post_init__(self):
+        """ Match the input values type during initialization. """
+        self.dataZ = np.array(self.dataZ, dtype=np.float64, copy=self.copy_data)
+        self.dataN = np.array(self.dataN, dtype=np.float64, copy=self.copy_data)
+        self.dataE = np.array(self.dataE, dtype=np.float64, copy=self.copy_data)
+        self.sampling_rate = float(self.sampling_rate)
+        self.station = str(self.station)
 
-    def read_sac(self, E_fname, N_fname, Z_fname):
+        assert len(self.dataE) == len(self.dataN) == len(self.dataZ), \
+            "Data do not have the same size in Z, N or E directions"
+
+        self.size = len(self.dataZ)
+
+    @classmethod
+    def from_sac(cls, Z_fname, N_fname, E_fname):
         """ Read data from SAC """
+        from obspy import read
+
         def get_data(filename):
             st = read(filename, debug_headers=True)
             data = st[0].data
             return np.array(data, dtype=np.float64), st[0].stats
 
-        self.dataE, headerE = get_data(E_fname)
-        self.dataN, headerN = get_data(N_fname)
-        self.dataZ, headerZ = get_data(Z_fname)
+        dataE, headerE = get_data(E_fname)
+        dataN, headerN = get_data(N_fname)
+        dataZ, headerZ = get_data(Z_fname)
 
-        def is_data_sync(headerE, headerN, headerZ):
-            fields = ['sampling_rate', 'starttime', 'endtime', 'station']
-            for field in fields:
-                if headerE[field] != headerN[field] or headerN[field] != headerZ[field]:
-                    raise Exception('Data not sync at ' + field)
+        attributes = ['sampling_rate', 'station']
+        for key in attributes:
+            if headerE[key] != headerN[key] or headerN[key] != headerZ[key]:
+                raise ValueError('Fields have different header value at: ' + key)
 
-        is_data_sync(headerE, headerN, headerZ)
+        return cls(dataZ, dataN, dataE, headerE['sampling_rate'], headerE['station'])
 
-        self.sampling_rate = headerE['sampling_rate']
-        self.starttime = headerE['starttime']
-        self.endtime = headerE['endtime']
-        self.station = headerE['station']
+    def make_window(self, start, size, copy=False):
+        """ Create a slice of data. """
+        assert start + size < self.size, "Window exceeds data size"
+        dataZ = self.dataZ[start:start + size]
+        dataN = self.dataN[start:start + size]
+        dataE = self.dataE[start:start + size]
+        return Data(dataZ, dataN, dataE, self.sampling_rate, self.station, copy_data=copy)
 
-        if len(self.dataE) != len(self.dataN) or len(self.dataN) != len(self.dataZ):
-            raise Exception('Input files have different sizes')
-
-        self.size = len(self.dataE)
-
-
-class Window(Data):
-    """ Subclass that slices a Window from Data """
-    def __init__(self, data, start, size):
-        """ data is Data object, size integer, size integer """
-        # split data window
-        super().__init__()
-        if not isinstance(data, Data):
-            raise AttributeError('Wrong "data" argument.')
-
-        self.dataE = data.dataE[start:start+size]
-        self.dataN = data.dataN[start:start+size]
-        self.dataZ = data.dataZ[start:start+size]
-        self.size = size
-        self.sampling_rate = data.sampling_rate
-        self.starttime = data.starttime
-        self.endtime = data.endtime
-        self.station = data.station
-
-
+    def copy(self):
+        # To be consistent with an old bug, this function returns itself!
+        return self  # Data(self.dataZ, self.dataN, self.dataE, self.sampling_rate, self.station)

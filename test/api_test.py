@@ -7,8 +7,8 @@ class RunModelTest(unittest.TestCase):
 
     def setUp(self):
         from hvarma import Data, ArmaParam, run_model
-        self.param = ArmaParam('test/resources/args1.txt')
-        self.data = Data('data/B001_E.sac', 'data/B001_N.sac', 'data/B001_Z.sac')
+        self.param = ArmaParam.from_file('test/resources/args1.txt')
+        self.data = Data.from_sac('test/resources/B001_Z.sac', 'test/resources/B001_N.sac', 'test/resources/B001_E.sac')
         self.average_data = run_model(self.data, self.param, plot=False, verbose=False, write=False)
 
     def test_num_windows(self):
@@ -42,8 +42,8 @@ class FindModelOrderTest(unittest.TestCase):
 
     def setUp(self):
         from hvarma import Data, ArmaParam
-        self.param = ArmaParam('test/resources/args2.txt')
-        self.data = Data('data/B001_E.sac', 'data/B001_N.sac', 'data/B001_Z.sac')
+        self.param = ArmaParam.from_file('test/resources/args2.txt')
+        self.data = Data.from_sac('test/resources/B001_Z.sac', 'test/resources/B001_N.sac', 'test/resources/B001_E.sac')
 
     def test_convergence(self):
         from hvarma.running import is_converged
@@ -58,25 +58,27 @@ class FindModelOrderTest(unittest.TestCase):
         self.assertFalse(convergence_condition(0.09, 0.02, 0.05))
 
 
-class TestBinarySearch(unittest.TestCase):
+class BinarySearchTest(unittest.TestCase):
 
     def setUp(self):
         from hvarma import Data, ArmaParam
-        self.data = Data('data/B001_E.sac', 'data/B001_N.sac', 'data/B001_Z.sac')
-        self.param = ArmaParam({
-            'arma_order': 10,
-            'ini_freq': -10,
-            'fin_freq': 10,
-            'num_points': 2000,
-            'window_size': 1024,
+        self.data = Data.from_sac('test/resources/B001_Z.sac', 'test/resources/B001_N.sac', 'test/resources/B001_E.sac')
+        self.param = ArmaParam.from_dict({
+            'model_order': 10,
+            'maxtau': 64,
+            'neg_freq': -10,
+            'pos_freq': 10,
+            'freq_points': 2000,
+            'window_size': 512,
+            'overlap':  0,
             'max_windows': 50
         })
 
     def test_binary_search(self):
         from hvarma.running import find_optimal_order_fast
-        final_order = find_optimal_order_fast(self.data, self.param, 0.1,
-                                              start_order=4, verbose=False, plot=False)
-        self.assertEqual(final_order, 65)
+        search_results = find_optimal_order_fast(self.data, self.param, 0.1,
+                                                 start_order=4, verbose=False, plot=False)
+        self.assertEqual(search_results.final_order, 49)
 
 
 if __name__ == '__main__':

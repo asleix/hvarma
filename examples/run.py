@@ -1,3 +1,15 @@
+"""
+Copyright (c) 2022, Spanish National Research Council (CSIC)
+
+Script to run HVarma of a specific order on input data.
+
+HVarma estimates the transfer function in a surface layer for
+three-dimensional micro-tremor seismogram data.
+
+Usage example:
+    python run.py Z_data.sac N_data.sac E_data.sac --model_order=42
+"""
+
 import argparse
 from hvarma import Data, ArmaParam, run_model, write_results, plot_hvratio
 
@@ -6,7 +18,7 @@ def select_parameters_from_args(args):
     """ Filter out ArmaParam attributes from commandline arguments """
     args_dict = {}
     for arg in vars(args):
-        if arg in ArmaParam.get_param_list():
+        if arg in ArmaParam.get_fields_list():
             if getattr(args, arg) is not None:
                 args_dict[arg] = getattr(args, arg)
     return args_dict
@@ -25,11 +37,13 @@ def write_frequencies_in_file(param, results):
 
 
 def main(args):
-    data = Data(Z_fname=args.Z_fname,
-                N_fname=args.N_fname,
-                E_fname=args.E_fname)
-
-    param = ArmaParam(args.args_file)
+    data = Data.from_sac(Z_fname=args.Z_fname,
+                         N_fname=args.N_fname,
+                         E_fname=args.E_fname)
+    if args.args_file is not None:
+        param = ArmaParam.from_file(args.args_file)
+    else:
+        param = ArmaParam()
     args_dict = select_parameters_from_args(args)
     param = param.update(args_dict)
 
@@ -52,7 +66,7 @@ if __name__ == '__main__':
     parser.add_argument('--max_windows', type=int, help="Maximum number of windows to explore within data.")
     parser.add_argument('--window_size', type=int, help="Size of each individual window.")
     parser.add_argument('--overlap', type=int, help="Overlap between individual windows.")
-    parser.add_argument('--args_file', type=str, help="File with all the default arguments.", default='default')
+    parser.add_argument('--args_file', type=str, help="File with all the default arguments.", default=None)
     parser.add_argument('--freq_points', type=int, help="Number of frequency points to "
                                                         "calculate between neg_freq and pos_freq")
     parser.add_argument('--freq_conf', type=float, help='Frequency confidence interval.')

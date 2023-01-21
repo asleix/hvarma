@@ -1,3 +1,9 @@
+"""
+Copyright (c) 2022, Spanish National Research Council (CSIC)
+
+Function definitions for text and image output.
+"""
+
 import os, sys
 import time
 import numpy as np
@@ -130,7 +136,7 @@ def write_results(data, param, results):
                results.get_coherence_percentile(50), outfile + '.txt')
 
 
-def plot_order_search(orders, found_p, stat_name, tol=0.1, output_dir='.'):
+def plot_search_iterations(orders, found_p, stat_name, tol=0.1, output_dir='.'):
     """ Create relevant plots for the hvarma order finder algorithm. """
     ps = []
     pos_freq = []
@@ -156,6 +162,16 @@ def plot_order_search(orders, found_p, stat_name, tol=0.1, output_dir='.'):
         fig2.savefig(filename2, dpi=300, bbox_inches='tight')
 
     return fig1, fig2
+
+
+def plot_order_search(results, output_dir='.'):
+    from .processing import OrderSearchResults
+    assert isinstance(results, OrderSearchResults)
+    tested_orders = results.order_results
+    final_order = results.final_order
+    station = results.station
+    tol = results.tol
+    plot_search_iterations(tested_orders, final_order, station, tol=tol, output_dir=output_dir)
 
 
 def pretty_plot_search(ps, pos_freq, neg_freq, found_p, stat_name, y_label='Frequency', tol=None):

@@ -1,19 +1,27 @@
+"""
+Copyright (c) 2022, Spanish National Research Council (CSIC)
+
+Class definitions for processing and results objects.
+"""
+
 from functools import lru_cache
+from dataclasses import dataclass
+from typing import Mapping
 import numpy as np
-from hvarma.compute import compute_crosscovariance, compute_autocovariance,\
+from .compute import compute_crosscovariance, compute_autocovariance,\
                        compute_equations, transfer_function, compute_coherence
-from hvarma.read_input import ArmaParam, Window
+from .read_input import ArmaParam, Data
 
 
 class HVarma:
     """ Class that handles processing of a single time window """
     def __init__(self, window, param):
         """ Initializes window with defined parameters. """
-        if not isinstance(window, Window):
+        if not isinstance(window, Data):
             raise AttributeError('Bad data window initialization')
         if not isinstance(param, ArmaParam):
             raise AttributeError('Bad parameter initialization')
-        self.data = window
+        self.data = window.copy()
         self.param = param
 
         # Center data
@@ -149,3 +157,13 @@ class AverageData:
     def get_AIC(self):
         """ Return AIC for each window """
         return self.AIC
+
+
+@dataclass
+class OrderSearchResults:
+    order_results: Mapping[int, AverageData]
+    tol: float
+    method: str
+    final_order: int
+    station: str
+    success: bool

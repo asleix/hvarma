@@ -1,19 +1,54 @@
+/**
+Copyright (c) 2022, Spanish National Research Council (CSIC)
+This source code is subject to the terms of the
+GNU Lesser General Public License.
+
+Estimation of the transfer function in a surface layer following
+Nakamura's method.
+
+Assumptions:
+  - The three components of a micro-tremor seismogram are provided.
+  - The vertical component represents the oscillation in the base of the layer.
+  - The horizontal components are a complex-valued signal which represents the
+    horizontal movement obtained from a filtering using the transfer function:
+    H(z) = A(z) / B(z). (A complex-valued, B real-valued).
+  - Noises from the vertical and horizontal components are uncorrelated.
+  - The recurrent filter H is invertible.
+
+Mathematical model:
+  - Horizontal comp.:   X(t)=Y(t)+Wx(t)
+  - Vertical comp.:     V(t)=Z(t)+Wv(t)
+  - Filtering:          Y(t)=(A(z)/B(z))Z(t)
+  - Ortogonality:       Wx with Y,Z,Wv  ;  Wv with Y,Z,Wx
+    Consequences:      Cxv = Cyz
+
+The following equations are solved using least squares:
+  B(z)Cxv = A(z) Cv - A(z) Cw_v = A(z) Cv + e1
+  A(z)Cxv* =B(z) Cx* - B(z) Cw_x* = B(z) Cx* + e2
+where (*) indicates the complex conjugate.
+
+We minimize
+J(coef A(z)= alpha_k +i beta_k; coef B(z)= b_k, b_0=1) =
+  SUM_tau [ amu !e1(tau)!^2  + abeta !e2(tau)!^2 ]
+
+Implementation details:
+We compute gradient as the matrix from a linear map from the variables.
+  - zcx: horizontal autocovariance.
+  - cv: vertical autocovariance.
+  - zcvx: horizontal-vertical crosscovariance.
+  - mu, nu: prediction error weights.
+  - p: arma filter order.
+  - maxtau: maximum covariance lag.
+
+  output:
+  - mat: coefficient matrix, size (3*p+2, 3*p+2)
+  - indep: independent term, size (3*p+2)
+**/
+
 #include <complex.h>
 #include <stdio.h>
 #include <string.h>
 
-/** Compute gradient as a the matrix from a linear map from the variables.
-      - zcx: horizontal autocovariance.
-      - cv: vertical autocovariance.
-      - zcvx: horizontal-vertical crosscovariance.
-      - mu, nu: prediction error weights.
-      - p: arma filter order.
-      - maxtau: maximum covariance lag.
-
-      output:
-      - mat: coefficient matrix, size (3*p+2, 3*p+2)
-      - indep: independent term, size (3*p+2)
- **/
 
 /** Compute autocovariance and crosscovariance of v and x1 + j*x2 **/
 void covariances(const double *x1, const double *x2,  const double *v,

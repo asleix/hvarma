@@ -1,21 +1,26 @@
+"""
+Copyright (c) 2022, Spanish National Research Council (CSIC)
+
+Function definitions for guiding the computation steps.
+"""
+
 import sys
 import os
 import time
+import warnings
 from collections import OrderedDict
-import numpy as np
-from hvarma.read_input import Window
-from hvarma.processing import HVarma, AverageData
-from hvarma.write_output import progress_bar, write_results, plot_hvratio, plot_order_search
+from .processing import HVarma, AverageData, OrderSearchResults
+from .write_output import progress_bar, write_results, plot_hvratio, plot_order_search
 
 
 def get_data_windows(data, size, overlap):
     """ Generator of data slices from data of a given size,
         overlapping one another """
     if data.size < size:
-        raise Exception('Window exceeds available data')
+        raise ValueError('Window exceeds available data')
 
     for start in range(0, data.size-size+1, size-overlap):
-        yield Window(data, start, size)
+        yield data.make_window(start, size)
 
 
 def run_model(data, param, plot=False, verbose=True, write=False):
@@ -133,34 +138,37 @@ def find_optimal_order_fast(data, param, tol=0.05, start_order=4, output_dir='.'
     print('Finding order upper bound. Tested orders:', end='', file=out)
     sys.stdout.flush()
 
+    print(f' {order}', end='', file=out)
     while not is_converged(data, param, tested_orders, order, tol=tol):
-        print(f' {order}', end='', file=out)
         sys.stdout.flush()
         if order == param.maxtau:
             break
         order = int(order * 2)
         if order > param.maxtau:
             order = param.maxtau
-
+        print(f' {order}', end='', file=out)
     print(file=out)
     # Now bisection search to refine order
     final_order = binary_search(data, param, tested_orders, int(order / 2), order,
                                 tol=tol, verbose=verbose)
+
+    converged = is_converged(data, param, tested_orders, final_order, tol=tol)
+    results = OrderSearchResults(tested_orders, tol, 'fast', final_order, data.station, converged)
     if plot:
-        plot_order_search(tested_orders, final_order, data.station, tol=tol, output_dir=output_dir)
+        plot_order_search(results, output_dir=output_dir)
 
     print('Elapsed:', round((time.time() - beg) / 60, 1), 'min', file=out)
 
-    result = is_converged(data, param, tested_orders, final_order, tol=tol)
-    if result:
+    if converged:
         print('Final order', final_order, file=out)
+    else:
+        import warnings
+        message = 'Could not find order with the given parameters.'
+        warnings.warn(message, RuntimeWarning)
 
     if not verbose:
         out.close()
-    if not result:
-        raise RuntimeError('Could not find convergence with the given parameters')
-
-    return final_order
+    return results
 
 
 def find_optimal_order(data, param, tol=0.05, start_order=4, output_dir='.',
