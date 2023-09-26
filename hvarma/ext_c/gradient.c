@@ -208,10 +208,6 @@ void compute_equations(const double *x1, const double *x2, const double *v,
 
     covariances(x1, x2, v, zcx, cv, zcxv, wsize, maxtau);
 
-    // Prediction weights
-    if(mu == 0.) mu = 1./cv[maxtau];
-    if(nu == 0.) nu = 1./creal(zcx[maxtau]);
-
     // Compute coef. matrix and indep. term
     gradient_matrix(zcx, cv, zcxv, size, mat, indep, mu, nu, p, maxtau);
 
