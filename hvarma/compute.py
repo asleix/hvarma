@@ -54,7 +54,7 @@ def compute_equations(dataE, dataN, dataZ, mu, nu, wsize, p, maxtau):
         assert isinstance(data, np.ndarray)
         assert data.dtype is np.dtype('float64')
 
-    libname = "./ext_c/gradient.so"
+    libname = "ext_c/gradient.so"
     libpath = os.path.dirname(os.path.abspath(__file__)) + os.path.sep + libname
     lib = ctypes.cdll.LoadLibrary(libpath)
     fun = lib.compute_equations
