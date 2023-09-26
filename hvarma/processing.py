@@ -46,12 +46,9 @@ class HVarma:
     def solve_arma(self):
         """ Find optimal coefficients for ARMA model minimizing prediction errors. """
 
-        # Find weights
-        mu, nu = 0, 0
-        if self.param.nu != 'sigma':
-            nu = float(self.param.nu)
-        if self.param.mu != 'sigma':
-            mu = float(self.param.mu)
+        # Set weights
+        nu = float(self.param.nu)
+        mu = float(self.param.mu)
 
         # Find system of equations satisfying optimality conditions
         mat, indep = compute_equations(self.data.dataE, self.data.dataN, self.data.dataZ, mu, nu,

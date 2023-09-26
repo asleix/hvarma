@@ -128,26 +128,25 @@ data structures.
 ## Parameter specification
 
 Parameters are defined in the args.txt file.
-- model_order: Number of lags "p" of the ARMA(p, p) model.
-- maxtau: Number of considered lags in the covariances. At most,
-  it should be window_size/2.
-- mu: Weight of the forward prediction error in coefficient estimation. Set to 0 or "sigma" to use vertical variance.
-- nu: Weight of the forward prediction error in coefficient estimation. Set to 0 or "sigma" to use horizontal variance.
-- nfir: Number of covariance lags considered in the correlation 
+- `model_order`: Number of lags "p" of the ARMA(p, p) model.
+- `maxtau`: Number of considered lags in the covariances. The value should be at most `window_size/2`.
+- `mu`: Weight of the forward prediction error in coefficient estimation.
+- `nu`: Weight of the backward prediction error in coefficient estimation.
+- `nfir`: Number of covariance lags considered in the correlation 
   matrices during the coherence calculation. A relatively small number
   should suffice.
-- neg_freq: Starting point of the frequency interval.
-- pos_freq: Ending point of the frequency interval
-- freq_points: Number of points within the frequency interval at which
+- `neg_freq`: Starting point of the frequency interval.
+- `pos_freq`: Ending point of the frequency interval
+- `freq_points`: Number of points within the frequency interval at which
   to compute the spectral ratio.
-- window_size: Number of data points for each time window.
-- overlap: Number of overlapping points between two consecutive windows.
-- max_windows: Maximum number of windows. Data beyond the max window will be ignored. 
+- `window_size`: Number of data points for each time window.
+- `overlap`: Number of overlapping points between two consecutive windows.
+- `max_windows`: Maximum number of windows. Data beyond the max window will be ignored.
   If max_windows is higher than available data, max_windows will be ignored.
-- freq_conf: Confidence interval for the resonant frequency. 
+- `freq_conf`: Confidence interval for the resonant frequency. 
   The lower the number, higher the confidence. It is in the interval 0-100. 
-- plot_conf: Confidence interval of the spectral ratio.
-- output_dir: Names will be [stationname]_p[arma_order]_win[number_of_windows].
+- `plot_conf`: Confidence interval of the spectral ratio.
+- `output_dir`: Names will be [stationname]_p[arma_order]_win[number_of_windows].
                If output_path is 'default', files will be stored in .../output 
 
 
