@@ -5,10 +5,35 @@ Function definitions for signal magnitudes computations.
 """
 
 import numpy as np
-import ctypes
 from numpy.ctypeslib import ndpointer
 import os.path
 from scipy.linalg import toeplitz
+
+
+# Set up the C extensions
+def setup_c_extension():
+    """ Load the shared C library and set up the C function
+        to solve the H/V-ARMA equations.
+     """
+    import glob
+    import ctypes
+    LIBPATH = glob.glob(os.path.dirname(os.path.abspath(__file__))
+                        + os.path.sep + 'ext_c*.so')[0]
+    CLIB = ctypes.cdll.LoadLibrary(LIBPATH)
+    fun = CLIB.compute_equations
+    fun.restype = None
+    fun.argtypes = [ndpointer(ctypes.c_double, flags="C_CONTIGUOUS"),
+                    ndpointer(ctypes.c_double, flags="C_CONTIGUOUS"),
+                    ndpointer(ctypes.c_double, flags="C_CONTIGUOUS"),
+                    ctypes.c_double, ctypes.c_double,
+                    ctypes.c_size_t,
+                    ndpointer(ctypes.c_double, flags="C_CONTIGUOUS"),
+                    ndpointer(ctypes.c_double, flags="C_CONTIGUOUS"),
+                    ctypes.c_size_t, ctypes.c_int, ctypes.c_int]
+    return fun
+
+
+compute_equations_c = setup_c_extension()
 
 
 def compute_crosscovariance(dataE, dataN, dataZ, size, maxtau):
@@ -54,25 +79,13 @@ def compute_equations(dataE, dataN, dataZ, mu, nu, wsize, p, maxtau):
         assert isinstance(data, np.ndarray)
         assert data.dtype is np.dtype('float64')
 
-    libname = "ext_c/gradient.so"
-    libpath = os.path.dirname(os.path.abspath(__file__)) + os.path.sep + libname
-    lib = ctypes.cdll.LoadLibrary(libpath)
-    fun = lib.compute_equations
-    fun.restype = None
-    fun.argtypes = [ndpointer(ctypes.c_double, flags="C_CONTIGUOUS"),
-                    ndpointer(ctypes.c_double, flags="C_CONTIGUOUS"),
-                    ndpointer(ctypes.c_double, flags="C_CONTIGUOUS"),
-                    ctypes.c_double, ctypes.c_double,
-                    ctypes.c_size_t,
-                    ndpointer(ctypes.c_double, flags="C_CONTIGUOUS"),
-                    ndpointer(ctypes.c_double, flags="C_CONTIGUOUS"),
-                    ctypes.c_size_t, ctypes.c_int, ctypes.c_int]
+
 
     size = 3 * p + 2
     mat = np.zeros((size, size))
     indep = np.zeros(size)
 
-    fun(dataN, dataE, dataZ, mu, nu, size, mat, indep, wsize, p, maxtau)
+    compute_equations_c(dataN, dataE, dataZ, mu, nu, size, mat, indep, wsize, p, maxtau)
 
     return mat, indep
 

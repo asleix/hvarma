@@ -1,6 +1,6 @@
 from setuptools import setup, Extension
 
-cmodule = Extension('gradient', sources=['hvarma/ext_c/gradient.c'])
+cmodule = Extension('hvarma.ext_c', sources=['hvarma/ext_c/gradient.c'])
 
 setup (name = 'hvarma',
        version = '1.0',
@@ -9,7 +9,7 @@ setup (name = 'hvarma',
        author_email = 'aleix.segui@student.ethz.ch',
        url = 'https://docs.python.org/extending/building',
        long_description = 'Horizontal-to-vertical ratio calculator',
-       packages=['hvarma', 'hvarma/ext_c'],
+       packages=['hvarma', 'hvarma.ext_c'],
        ext_modules = [cmodule],
        install_requires=[
         'numpy>=1.19.0',
