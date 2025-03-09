@@ -3,17 +3,17 @@
 # H/V-ARMA calculator
 
 The horizontal to vertical (H/V) spectral ratio is used to estimate
-the resonant frequency of sediments. 
-
-HV-ARMA does so by 
+the resonant frequency of sediments. HV-ARMA does so by 
 estimating the transfer function in a surface layer for
 three-dimensional micro-tremor seismogram data.
 
 This HV-ARMA module and the provided example scripts allow
 to find the resonant frequency in micro-tremor seismograms
-for a given HV-ARMA model order.
+for a given HV-ARMA model order. 
 
-![Alt text](./examples/b001_p42.png?raw=true "Resonant frequencies")
+- `hvarma`: Autoregressive moving average model of microtremor H/V spectral ratio. Software Impacts. 2025. [[Link to Paper](https://doi.org/10.1016/j.simpa.2025.100745)].
+
+![Resonant frequencies](https://raw.githubusercontent.com/asleix/hvarma/main/examples/b001_p42.png)
 
 In addition, we provide 
 guidance for finding the best model order for given input 
