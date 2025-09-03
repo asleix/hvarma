@@ -11,7 +11,11 @@ This HV-ARMA module and the provided example scripts allow
 to find the resonant frequency in micro-tremor seismograms
 for a given HV-ARMA model order. 
 
-- `hvarma`: Autoregressive moving average model of microtremor H/V spectral ratio. Software Impacts. 2025. [[Link to Paper](https://doi.org/10.1016/j.simpa.2025.100745)].
+Find more information on the method in the following publications:
+
+- A. Ugalde, J. J. Egozcue, C. R. Ranero, 2021. A new autoregressive moving average modeling of H/V spectral ratios to estimate the ground resonance frequency. Engineering Geology 280, 105957, [10.1016/j.enggeo.2020.105957](https://doi.org/10.1016/j.enggeo.2020.105957).
+- A. Ugalde, A. Seguí, M. de Ortuzar, J. M. de Ortuzar, C. R. Ranero, 2023. Subfluvial Tunnel Layout Design: Mapping recent sediment fill in Bilbao Estuary using H/V spectral ratio. Engineering Geology 327, [10.1016/j.enggeo.2023.107338](https://doi.org/10.1016/j.enggeo.2023.107338)
+-  A. Segui, A. Ugalde, J. J. Egozcue, 2025. `hvarma`: Autoregressive moving average model of microtremor H/V spectral ratio, Software Impacts, [10.1016/j.simpa.2025.100745](https://doi.org/10.1016/j.simpa.2025.100745).
 
 ![Resonant frequencies](https://raw.githubusercontent.com/asleix/hvarma/main/examples/b001_p42.png)
 
